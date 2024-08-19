@@ -1,0 +1,10 @@
+<resources>
+    <string-array name="time_array">
+        <item>尖峰時段</item>
+        <item>離峰時段</item>
+    </string-array>
+    <string-array name="season_array">
+        <item>夏季</item>
+        <item>非夏季</item>
+    </string-array>
+</resources>
