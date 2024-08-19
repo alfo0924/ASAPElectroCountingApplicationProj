@@ -1,5 +1,7 @@
 package com.example.asapelectrocountingapplicationproj;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -19,7 +22,7 @@ public class ElectroEstimator extends AppCompatActivity {
 
     private EditText usageEditText;
     private Spinner timeSpinner, seasonSpinner;
-    private Button calculateButton, saveButton;
+    private Button calculateButton, saveButton, backButton;
     private TextView resultTextView;
 
     @Override
@@ -28,16 +31,9 @@ public class ElectroEstimator extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_electro_estimator);
 
-        // 初始化視圖
         initViews();
-
-        // 設置Spinner適配器
         setupSpinners();
-
-        // 設置按鈕點擊監聽器
         setupButtonListeners();
-
-        // 設置窗口插入監聽器
         setupWindowInsets();
     }
 
@@ -48,6 +44,7 @@ public class ElectroEstimator extends AppCompatActivity {
         calculateButton = findViewById(R.id.calculateButton);
         saveButton = findViewById(R.id.saveButton);
         resultTextView = findViewById(R.id.resultTextView);
+        backButton = findViewById(R.id.backButton);
     }
 
     private void setupSpinners() {
@@ -65,6 +62,7 @@ public class ElectroEstimator extends AppCompatActivity {
     private void setupButtonListeners() {
         calculateButton.setOnClickListener(v -> calculateElectricity());
         saveButton.setOnClickListener(v -> saveResult());
+        backButton.setOnClickListener(v -> handleBackButton());
     }
 
     private void setupWindowInsets() {
@@ -106,5 +104,33 @@ public class ElectroEstimator extends AppCompatActivity {
 
         // 這裡應該實現保存結果的邏輯,例如保存到數據庫或文件
         Toast.makeText(this, "結果已保存", Toast.LENGTH_SHORT).show();
+    }
+
+    private void handleBackButton() {
+        if (!usageEditText.getText().toString().isEmpty()) {
+            showConfirmDialog();
+        } else {
+            navigateToMainActivity();
+        }
+    }
+
+    private void showConfirmDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("確定返回?")
+                .setMessage("尚未儲存的資料將會被移除")
+                .setPositiveButton("確定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        navigateToMainActivity();
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void navigateToMainActivity() {
+        Intent intent = new Intent(ElectroEstimator.this, MainActivity.class);
+        startActivity(intent);
+        finish(); // 結束當前活動
     }
 }
