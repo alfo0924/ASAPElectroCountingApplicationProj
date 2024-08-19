@@ -42,13 +42,15 @@
             android:id="@+id/timeSpinner"
             android:layout_width="379dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp" />
+            android:layout_marginBottom="30dp"
+            android:entries="@array/time_array" />
 
         <Spinner
             android:id="@+id/seasonSpinner"
             android:layout_width="379dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp" />
+            android:layout_marginBottom="30dp"
+            android:entries="@array/season_array" />
 
         <Button
             android:id="@+id/calculateButton"
