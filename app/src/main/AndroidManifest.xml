@@ -13,6 +13,9 @@
         android:theme="@style/Theme.ASAPElectroCountingApplicationProj"
         tools:targetApi="31">
         <activity
+            android:name=".ElectroBillRecords"
+            android:exported="false" />
+        <activity
             android:name=".ElectroEstimator22"
             android:exported="false" />
         <activity
