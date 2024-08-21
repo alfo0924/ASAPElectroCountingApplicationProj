@@ -16,8 +16,10 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.517"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.181">
 
         <EditText
             android:id="@+id/usageEditText"
@@ -74,8 +76,8 @@
             android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="返回"
-            android:layout_marginBottom="15dp" />
+            android:layout_marginBottom="15dp"
+            android:text="返回" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
