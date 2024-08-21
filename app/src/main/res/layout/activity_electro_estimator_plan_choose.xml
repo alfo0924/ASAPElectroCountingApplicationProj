@@ -8,8 +8,8 @@
     tools:context=".ElectroEstimatorPlanChoose">
 
     <LinearLayout
-        android:layout_width="409dp"
-        android:layout_height="296dp"
+        android:layout_width="406dp"
+        android:layout_height="192dp"
         android:layout_marginTop="200dp"
         android:layout_marginBottom="235dp"
         android:gravity="center"
@@ -20,8 +20,8 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:layout_width="410dp"
-            android:layout_height="202dp"
+            android:layout_width="380dp"
+            android:layout_height="92dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -38,5 +38,11 @@
                 android:layout_marginLeft="20dp"
                 android:text="時間電價" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/button8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="返回" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
