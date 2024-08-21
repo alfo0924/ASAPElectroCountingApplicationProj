@@ -31,19 +31,22 @@
             android:id="@+id/timeSpinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp" />
+            android:layout_marginBottom="15dp"
+            android:entries="@array/business_type_array" />
 
         <Spinner
             android:id="@+id/seasonSpinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp" />
+            android:layout_marginBottom="15dp"
+            android:entries="@array/season_array" />
 
         <Spinner
             android:id="@+id/businessTypeSpinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp" />
+            android:layout_marginBottom="15dp"
+            android:entries="@array/time_array" />
 
         <Button
             android:id="@+id/calculateButton"
