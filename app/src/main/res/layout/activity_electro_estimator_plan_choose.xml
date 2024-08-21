@@ -38,13 +38,13 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/normalEstimatorButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="非時間電價" />
 
             <Button
-                android:id="@+id/button7"
+                android:id="@+id/timeEstimatorButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
@@ -52,7 +52,7 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/button8"
+            android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="返回" />

@@ -3,6 +3,7 @@ package com.example.asapelectrocountingapplicationproj;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,6 +32,15 @@ public class ElectroEstimator extends AppCompatActivity {
         initViews();
         setupSpinners();
         setupButtonListeners();
+
+// 添加返回按鈕
+        Button backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish(); // 這會關閉當前活動並返回到ElectroEstimatorPlanChoose
+            }
+        });
     }
 
     private void initViews() {
@@ -160,7 +170,7 @@ public class ElectroEstimator extends AppCompatActivity {
     }
 
     private void navigateToMainActivity() {
-        Intent intent = new Intent(ElectroEstimator.this, MainActivity.class);
+        Intent intent = new Intent(ElectroEstimator.this, ElectroEstimatorPlanChoose.class);
         startActivity(intent);
         finish();
     }

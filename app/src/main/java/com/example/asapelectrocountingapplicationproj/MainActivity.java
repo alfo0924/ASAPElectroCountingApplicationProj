@@ -27,13 +27,10 @@ public class MainActivity extends AppCompatActivity {
 
         // 找到電費估算器按鈕
         Button estimatorButton = findViewById(R.id.estimatorButton);
-
-        // 設置按鈕點擊監聽器
         estimatorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 創建一個Intent來啟動ElectroEstimator活動
-                Intent intent = new Intent(MainActivity.this, ElectroEstimator.class);
+                Intent intent = new Intent(MainActivity.this, ElectroEstimatorPlanChoose.class);
                 startActivity(intent);
             }
         });

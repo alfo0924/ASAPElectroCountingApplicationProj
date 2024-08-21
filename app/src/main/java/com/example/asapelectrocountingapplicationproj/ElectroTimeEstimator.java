@@ -35,6 +35,14 @@ public class ElectroTimeEstimator extends AppCompatActivity {
                 calculateElectricityBill();
             }
         });
+        // 添加返回按鈕
+        Button backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish(); // 這會關閉當前活動並返回到ElectroEstimatorPlanChoose
+            }
+        });
     }
 
     private void calculateElectricityBill() {
