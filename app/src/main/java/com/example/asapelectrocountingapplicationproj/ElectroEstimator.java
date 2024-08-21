@@ -21,7 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 public class ElectroEstimator extends AppCompatActivity {
 
     private EditText usageEditText;
-    private Spinner timeSpinner, seasonSpinner;
+    private Spinner timeSpinner, seasonSpinner, businessTypeSpinner;
     private Button calculateButton, saveButton, backButton;
     private TextView resultTextView;
 
@@ -41,6 +41,7 @@ public class ElectroEstimator extends AppCompatActivity {
         usageEditText = findViewById(R.id.usageEditText);
         timeSpinner = findViewById(R.id.timeSpinner);
         seasonSpinner = findViewById(R.id.seasonSpinner);
+        businessTypeSpinner = findViewById(R.id.businessTypeSpinner);
         calculateButton = findViewById(R.id.calculateButton);
         saveButton = findViewById(R.id.saveButton);
         resultTextView = findViewById(R.id.resultTextView);
@@ -48,15 +49,20 @@ public class ElectroEstimator extends AppCompatActivity {
     }
 
     private void setupSpinners() {
-        ArrayAdapter<CharSequence> timeAdapter = ArrayAdapter.createFromResource(this,
+        ArrayAdapter timeAdapter = ArrayAdapter.createFromResource(this,
                 R.array.time_array, android.R.layout.simple_spinner_item);
         timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         timeSpinner.setAdapter(timeAdapter);
 
-        ArrayAdapter<CharSequence> seasonAdapter = ArrayAdapter.createFromResource(this,
+        ArrayAdapter seasonAdapter = ArrayAdapter.createFromResource(this,
                 R.array.season_array, android.R.layout.simple_spinner_item);
         seasonAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         seasonSpinner.setAdapter(seasonAdapter);
+
+        ArrayAdapter businessTypeAdapter = ArrayAdapter.createFromResource(this,
+                R.array.business_type_array, android.R.layout.simple_spinner_item);
+        businessTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        businessTypeSpinner.setAdapter(businessTypeAdapter);
     }
 
     private void setupButtonListeners() {
@@ -81,18 +87,47 @@ public class ElectroEstimator extends AppCompatActivity {
         }
 
         double usage = Double.parseDouble(usageStr);
-        String time = timeSpinner.getSelectedItem().toString();
         String season = seasonSpinner.getSelectedItem().toString();
+        String businessType = businessTypeSpinner.getSelectedItem().toString();
 
-        // 這裡是一個簡單的電費計算邏輯,您需要根據實際電價政策進行調整
-        double rate = (season.equals("夏季")) ? 3.70 : 3.03;
-        if (time.equals("尖峰時段")) {
-            rate *= 1.2;
-        }
-
-        double cost = usage * rate;
+        double cost = calculateNonTimeElectricity(usage, season, businessType);
         String result = String.format("預估電費: %.2f 元", cost);
         resultTextView.setText(result);
+    }
+
+    private double calculateNonTimeElectricity(double usage, String season, String businessType) {
+        double cost = 0;
+        boolean isSummer = season.equals("夏季");
+
+        if (businessType.equals("非營業用")) {
+            if (usage <= 120) {
+                cost = usage * 1.68;
+            } else if (usage <= 330) {
+                cost = 120 * 1.68 + (usage - 120) * (isSummer ? 2.45 : 2.16);
+            } else if (usage <= 500) {
+                cost = 120 * 1.68 + 210 * (isSummer ? 2.45 : 2.16) + (usage - 330) * (isSummer ? 3.70 : 3.03);
+            } else if (usage <= 700) {
+                cost = 120 * 1.68 + 210 * (isSummer ? 2.45 : 2.16) + 170 * (isSummer ? 3.70 : 3.03) + (usage - 500) * (isSummer ? 5.04 : 4.14);
+            } else if (usage <= 1000) {
+                cost = 120 * 1.68 + 210 * (isSummer ? 2.45 : 2.16) + 170 * (isSummer ? 3.70 : 3.03) + 200 * (isSummer ? 5.04 : 4.14) + (usage - 700) * (isSummer ? 6.24 : 5.07);
+            } else {
+                cost = 120 * 1.68 + 210 * (isSummer ? 2.45 : 2.16) + 170 * (isSummer ? 3.70 : 3.03) + 200 * (isSummer ? 5.04 : 4.14) + 300 * (isSummer ? 6.24 : 5.07) + (usage - 1000) * (isSummer ? 8.46 : 6.63);
+            }
+        } else { // 營業用
+            if (usage <= 330) {
+                cost = usage * (isSummer ? 2.61 : 2.18);
+            } else if (usage <= 700) {
+                cost = 330 * (isSummer ? 2.61 : 2.18) + (usage - 330) * (isSummer ? 3.66 : 3.00);
+            } else if (usage <= 1500) {
+                cost = 330 * (isSummer ? 2.61 : 2.18) + 370 * (isSummer ? 3.66 : 3.00) + (usage - 700) * (isSummer ? 4.46 : 3.61);
+            } else if (usage <= 3000) {
+                cost = 330 * (isSummer ? 2.61 : 2.18) + 370 * (isSummer ? 3.66 : 3.00) + 800 * (isSummer ? 4.46 : 3.61) + (usage - 1500) * (isSummer ? 7.08 : 5.56);
+            } else {
+                cost = 330 * (isSummer ? 2.61 : 2.18) + 370 * (isSummer ? 3.66 : 3.00) + 800 * (isSummer ? 4.46 : 3.61) + 1500 * (isSummer ? 7.08 : 5.56) + (usage - 3000) * (isSummer ? 7.43 : 5.83);
+            }
+        }
+
+        return cost;
     }
 
     private void saveResult() {
