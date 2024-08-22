@@ -231,7 +231,6 @@ public class ElectroBillRecords extends AppCompatActivity {
         }
         updateDeleteButtonVisibility();
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
