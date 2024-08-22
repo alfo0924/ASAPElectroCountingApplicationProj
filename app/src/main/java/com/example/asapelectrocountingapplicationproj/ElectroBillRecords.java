@@ -166,47 +166,55 @@ public class ElectroBillRecords extends AppCompatActivity {
         final String oldDate = billInfo[0];
         final double oldAmount = Double.parseDouble(billInfo[1].substring(1));
         final double oldUsage = Double.parseDouble(billInfo[2].split(" ")[0]);
-        final String oldRemark = billInfo.length > 4 ? billInfo[4] : "";
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = getLayoutInflater().inflate(R.layout.dialog_edit_bill, null);
-        final EditText etEditDate = view.findViewById(R.id.etEditDate);
-        final EditText etEditAmount = view.findViewById(R.id.etEditAmount);
-        final EditText etEditUsage = view.findViewById(R.id.etEditUsage);
-        final EditText etEditRemark = view.findViewById(R.id.etEditRemark);
+        // 從資料庫中獲取完整的帳單資訊
+        Cursor cursor = db.rawQuery("SELECT * FROM bills WHERE date = ? AND amount = ? AND usage = ?",
+                new String[]{oldDate, String.valueOf(oldAmount), String.valueOf(oldUsage)});
 
-        etEditDate.setText(oldDate);
-        etEditAmount.setText(String.format(Locale.getDefault(), "%.2f", oldAmount));
-        etEditUsage.setText(String.format(Locale.getDefault(), "%.2f", oldUsage));
-        etEditRemark.setText(oldRemark);
+        if (cursor.moveToFirst()) {
+            final String oldRemark = cursor.getString(4);
 
-        builder.setView(view);
-        builder.setTitle("編輯帳單");
-        builder.setPositiveButton("保存", (dialog, which) -> {
-            String newDate = etEditDate.getText().toString().trim();
-            if (!isValidDate(newDate)) {
-                Toast.makeText(ElectroBillRecords.this, "請輸入正確的日期格式 (YYYY-MM-DD)", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            View view = getLayoutInflater().inflate(R.layout.dialog_edit_bill, null);
+            final EditText etEditDate = view.findViewById(R.id.etEditDate);
+            final EditText etEditAmount = view.findViewById(R.id.etEditAmount);
+            final EditText etEditUsage = view.findViewById(R.id.etEditUsage);
+            final EditText etEditRemark = view.findViewById(R.id.etEditRemark);
 
-            double newAmount = Double.parseDouble(etEditAmount.getText().toString().trim());
-            double newUsage = Double.parseDouble(etEditUsage.getText().toString().trim());
-            String newRemark = etEditRemark.getText().toString().trim();
+            etEditDate.setText(oldDate);
+            etEditAmount.setText(String.format(Locale.getDefault(), "%.2f", oldAmount));
+            etEditUsage.setText(String.format(Locale.getDefault(), "%.2f", oldUsage));
+            etEditRemark.setText(oldRemark);
 
-            ContentValues values = new ContentValues();
-            values.put("date", newDate);
-            values.put("amount", newAmount);
-            values.put("usage", newUsage);
-            values.put("remark", newRemark);
+            builder.setView(view);
+            builder.setTitle("編輯帳單");
+            builder.setPositiveButton("保存", (dialog, which) -> {
+                String newDate = etEditDate.getText().toString().trim();
+                if (!isValidDate(newDate)) {
+                    Toast.makeText(ElectroBillRecords.this, "請輸入正確的日期格式 (YYYY-MM-DD)", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-            db.update("bills", values, "date = ? AND amount = ? AND usage = ?",
-                    new String[]{oldDate, String.valueOf(oldAmount), String.valueOf(oldUsage)});
+                double newAmount = Double.parseDouble(etEditAmount.getText().toString().trim());
+                double newUsage = Double.parseDouble(etEditUsage.getText().toString().trim());
+                String newRemark = etEditRemark.getText().toString().trim();
 
-            loadBills();
-            Toast.makeText(ElectroBillRecords.this, "帳單已更新", Toast.LENGTH_SHORT).show();
-        });
-        builder.setNegativeButton("取消", null);
-        builder.show();
+                ContentValues values = new ContentValues();
+                values.put("date", newDate);
+                values.put("amount", newAmount);
+                values.put("usage", newUsage);
+                values.put("remark", newRemark);
+
+                db.update("bills", values, "date = ? AND amount = ? AND usage = ?",
+                        new String[]{oldDate, String.valueOf(oldAmount), String.valueOf(oldUsage)});
+
+                loadBills();
+                Toast.makeText(ElectroBillRecords.this, "帳單已更新", Toast.LENGTH_SHORT).show();
+            });
+            builder.setNegativeButton("取消", null);
+            builder.show();
+        }
+        cursor.close();
     }
 
     private void deleteBill(int position) {
