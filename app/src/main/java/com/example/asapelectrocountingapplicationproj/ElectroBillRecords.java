@@ -19,16 +19,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ElectroBillRecords extends AppCompatActivity {
 
     private EditText etDate, etAmount, etUsage;
-    private Button btnAdd, btnBack;
+    private Button btnAdd, btnBack, btnDelete;
     private ListView lvBills;
     private ArrayList<String> billsList;
     private ArrayAdapter<String> adapter;
     private SQLiteDatabase db;
     private SimpleDateFormat dateFormat;
+    private Set<Integer> selectedItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,11 +43,15 @@ public class ElectroBillRecords extends AppCompatActivity {
         etUsage = findViewById(R.id.etUsage);
         btnAdd = findViewById(R.id.btnAdd);
         btnBack = findViewById(R.id.btnBack);
+        btnDelete = findViewById(R.id.btnDelete);
         lvBills = findViewById(R.id.lvBills);
 
         billsList = new ArrayList<>();
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, billsList);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_multiple_choice, billsList);
         lvBills.setAdapter(adapter);
+        lvBills.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
+        selectedItems = new HashSet<>();
 
         db = openOrCreateDatabase("ElectricityBills", MODE_PRIVATE, null);
         db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL)");
@@ -53,26 +60,24 @@ public class ElectroBillRecords extends AppCompatActivity {
 
         loadBills();
 
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addBill();
+        btnAdd.setOnClickListener(v -> addBill());
+        btnBack.setOnClickListener(v -> finish());
+        btnDelete.setOnClickListener(v -> deleteSelectedBills());
+
+        lvBills.setOnItemClickListener((parent, view, position, id) -> {
+            if (selectedItems.contains(position)) {
+                selectedItems.remove(position);
+                lvBills.setItemChecked(position, false);
+            } else {
+                selectedItems.add(position);
+                lvBills.setItemChecked(position, true);
             }
+            updateDeleteButtonVisibility();
         });
 
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        lvBills.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                showEditDeleteDialog(position);
-                return true;
-            }
+        lvBills.setOnItemLongClickListener((parent, view, position, id) -> {
+            showEditDeleteDialog(position);
+            return true;
         });
     }
 
@@ -89,6 +94,7 @@ public class ElectroBillRecords extends AppCompatActivity {
         }
         cursor.close();
         adapter.notifyDataSetChanged();
+        clearAllSelections();
     }
 
     private void addBill() {
@@ -132,14 +138,11 @@ public class ElectroBillRecords extends AppCompatActivity {
     private void showEditDeleteDialog(final int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("編輯/刪除帳單");
-        builder.setItems(new String[]{"編輯", "刪除"}, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) {
-                    editBill(position);
-                } else {
-                    deleteBill(position);
-                }
+        builder.setItems(new String[]{"編輯", "刪除"}, (dialog, which) -> {
+            if (which == 0) {
+                editBill(position);
+            } else {
+                deleteBill(position);
             }
         });
         builder.show();
@@ -158,32 +161,29 @@ public class ElectroBillRecords extends AppCompatActivity {
         final EditText etEditUsage = view.findViewById(R.id.etEditUsage);
 
         etEditDate.setText(oldDate);
-        etEditAmount.setText(String.format("%.2f", oldAmount));
-        etEditUsage.setText(String.format("%.2f", oldUsage));
+        etEditAmount.setText(String.format(Locale.getDefault(), "%.2f", oldAmount));
+        etEditUsage.setText(String.format(Locale.getDefault(), "%.2f", oldUsage));
 
         builder.setView(view);
         builder.setTitle("編輯帳單");
-        builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String newDate = etEditDate.getText().toString().trim();
-                if (!isValidDate(newDate)) {
-                    Toast.makeText(ElectroBillRecords.this, "請輸入正確的日期格式 (YYYY-MM-DD)", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                double newAmount = Double.parseDouble(etEditAmount.getText().toString().trim());
-                double newUsage = Double.parseDouble(etEditUsage.getText().toString().trim());
-
-                ContentValues values = new ContentValues();
-                values.put("date", newDate);
-                values.put("amount", newAmount);
-                values.put("usage", newUsage);
-                db.update("bills", values, "date = ? AND amount = ? AND usage = ?",
-                        new String[]{oldDate, String.valueOf(oldAmount), String.valueOf(oldUsage)});
-                loadBills();
-                Toast.makeText(ElectroBillRecords.this, "帳單已更新", Toast.LENGTH_SHORT).show();
+        builder.setPositiveButton("保存", (dialog, which) -> {
+            String newDate = etEditDate.getText().toString().trim();
+            if (!isValidDate(newDate)) {
+                Toast.makeText(ElectroBillRecords.this, "請輸入正確的日期格式 (YYYY-MM-DD)", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            double newAmount = Double.parseDouble(etEditAmount.getText().toString().trim());
+            double newUsage = Double.parseDouble(etEditUsage.getText().toString().trim());
+
+            ContentValues values = new ContentValues();
+            values.put("date", newDate);
+            values.put("amount", newAmount);
+            values.put("usage", newUsage);
+            db.update("bills", values, "date = ? AND amount = ? AND usage = ?",
+                    new String[]{oldDate, String.valueOf(oldAmount), String.valueOf(oldUsage)});
+            loadBills();
+            Toast.makeText(ElectroBillRecords.this, "帳單已更新", Toast.LENGTH_SHORT).show();
         });
         builder.setNegativeButton("取消", null);
         builder.show();
@@ -198,6 +198,38 @@ public class ElectroBillRecords extends AppCompatActivity {
                 new String[]{date, String.valueOf(amount), String.valueOf(usage)});
         loadBills();
         Toast.makeText(this, "帳單已刪除", Toast.LENGTH_SHORT).show();
+    }
+
+    private void deleteSelectedBills() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("刪除選中的帳單");
+        builder.setMessage("確定要刪除選中的帳單嗎？");
+        builder.setPositiveButton("確定", (dialog, which) -> {
+            for (Integer position : selectedItems) {
+                String[] billInfo = billsList.get(position).split(" - ");
+                String date = billInfo[0];
+                double amount = Double.parseDouble(billInfo[1].substring(1));
+                double usage = Double.parseDouble(billInfo[2].split(" ")[0]);
+                db.delete("bills", "date = ? AND amount = ? AND usage = ?",
+                        new String[]{date, String.valueOf(amount), String.valueOf(usage)});
+            }
+            loadBills();
+            Toast.makeText(ElectroBillRecords.this, "選中的帳單已刪除", Toast.LENGTH_SHORT).show();
+        });
+        builder.setNegativeButton("取消", null);
+        builder.show();
+    }
+
+    private void updateDeleteButtonVisibility() {
+        btnDelete.setVisibility(selectedItems.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    private void clearAllSelections() {
+        selectedItems.clear();
+        for (int i = 0; i < lvBills.getCount(); i++) {
+            lvBills.setItemChecked(i, false);
+        }
+        updateDeleteButtonVisibility();
     }
 
     @Override
