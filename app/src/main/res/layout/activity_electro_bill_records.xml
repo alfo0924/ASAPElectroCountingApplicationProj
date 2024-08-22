@@ -33,7 +33,7 @@
             android:hint="日期 (YYYY-MM-DD)" />
 
         <EditText
-            android:id="@+id/editTextNumberDecimal"
+            android:id="@+id/etUsage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
