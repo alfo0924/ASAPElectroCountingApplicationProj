@@ -16,9 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class ElectroEstimator extends AppCompatActivity {
 
     private EditText usageEditText;
-
     private Spinner typeSpinner, seasonSpinner;
-
     private Button calculateButton, saveButton, backButton;
     private TextView resultTextView;
 
@@ -49,7 +47,6 @@ public class ElectroEstimator extends AppCompatActivity {
         usageEditText = findViewById(R.id.usageEditText);
         typeSpinner = findViewById(R.id.typeSpinner);
         seasonSpinner = findViewById(R.id.seasonSpinner);
-        businessTypeSpinner = findViewById(R.id.businessTypeSpinner);
         calculateButton = findViewById(R.id.calculateButton);
         saveButton = findViewById(R.id.saveButton);
         resultTextView = findViewById(R.id.resultTextView);
@@ -62,16 +59,10 @@ public class ElectroEstimator extends AppCompatActivity {
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(typeAdapter);
 
-
-        ArrayAdapter seasonAdapter = ArrayAdapter.createFromResource(this,
+        ArrayAdapter<CharSequence> seasonAdapter = ArrayAdapter.createFromResource(this,
                 R.array.season_array, android.R.layout.simple_spinner_item);
         seasonAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         seasonSpinner.setAdapter(seasonAdapter);
-
-        ArrayAdapter businessTypeAdapter = ArrayAdapter.createFromResource(this,
-                R.array.business_type_array, android.R.layout.simple_spinner_item);
-        businessTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        businessTypeSpinner.setAdapter(businessTypeAdapter);
     }
 
     private void setupButtonListeners() {
@@ -88,17 +79,14 @@ public class ElectroEstimator extends AppCompatActivity {
         }
 
         double usage = Double.parseDouble(usageStr);
-
         String type = typeSpinner.getSelectedItem().toString();
         String season = seasonSpinner.getSelectedItem().toString();
         boolean isSummer = season.equals("夏月");
 
         double cost = calculateCost(usage, type, isSummer);
-
         String result = String.format("預估電費: %.2f 元", cost);
         resultTextView.setText(result);
     }
-
 
     private double calculateCost(double usage, String type, boolean isSummer) {
         double[][] rates = getRates(type);
@@ -151,7 +139,6 @@ public class ElectroEstimator extends AppCompatActivity {
                     {Double.MAX_VALUE, 7.43, 5.83}
             };
         }
-
     }
 
     private void saveResult() {
