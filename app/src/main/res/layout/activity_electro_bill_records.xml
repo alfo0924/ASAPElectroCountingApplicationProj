@@ -7,8 +7,8 @@
     android:padding="16dp">
 
     <LinearLayout
-        android:layout_width="412dp"
-        android:layout_height="604dp"
+        android:layout_width="407dp"
+        android:layout_height="641dp"
         android:layout_marginTop="120dp"
         android:layout_marginBottom="100dp"
         android:gravity="center"
@@ -16,16 +16,17 @@
         android:padding="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintVertical_bias="0.702">
 
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="電費紀錄" />
+            android:layout_marginBottom="5dp"
+            android:text="電費紀錄"
+            android:textSize="24sp" />
 
         <EditText
             android:id="@+id/etDate"
@@ -54,7 +55,22 @@
             android:id="@+id/btnAdd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
             android:text="新增" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="備註 " />
+
+        <EditText
+            android:id="@+id/editTextTextMultiLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="textMultiLine" />
 
         <TextView
             android:id="@+id/textView3"
@@ -66,12 +82,13 @@
 
         <ListView
             android:id="@+id/lvBills"
-            android:layout_width="327dp"
-            android:layout_height="220dp" />
+            android:layout_width="355dp"
+            android:layout_height="204dp"
+            android:layout_marginBottom="5dp" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="364dp"
+            android:layout_height="45dp"
             android:gravity="center"
             android:orientation="horizontal">
 
