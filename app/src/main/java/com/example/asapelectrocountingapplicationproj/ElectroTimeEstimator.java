@@ -6,13 +6,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ElectroTimeEstimator extends AppCompatActivity {
 
     private RadioGroup rateTypeGroup, seasonGroup, dayTypeGroup;
     private EditText peakUsageInput, halfPeakUsageInput, offPeakUsageInput;
-    private Button calculateButton;
+    private Button calculateButton, backButton;
     private TextView resultText;
 
     @Override
@@ -32,17 +34,39 @@ public class ElectroTimeEstimator extends AppCompatActivity {
         calculateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                calculateElectricityBill();
+                if (validateInput()) {
+                    calculateElectricityBill();
+                } else {
+                    Toast.makeText(ElectroTimeEstimator.this, "請輸入用電度數及勾選欄位", Toast.LENGTH_SHORT).show();
+                }
             }
         });
-        // 添加返回按鈕
-        Button backButton = findViewById(R.id.backButton);
+
+        backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish(); // 這會關閉當前活動並返回到ElectroEstimatorPlanChoose
+                showExitConfirmDialog();
             }
         });
+    }
+
+    private boolean validateInput() {
+        boolean isValid = true;
+
+        if (peakUsageInput.getText().toString().isEmpty() &&
+                halfPeakUsageInput.getText().toString().isEmpty() &&
+                offPeakUsageInput.getText().toString().isEmpty()) {
+            isValid = false;
+        }
+
+        if (rateTypeGroup.getCheckedRadioButtonId() == -1 ||
+                seasonGroup.getCheckedRadioButtonId() == -1 ||
+                dayTypeGroup.getCheckedRadioButtonId() == -1) {
+            isValid = false;
+        }
+
+        return isValid;
     }
 
     private void calculateElectricityBill() {
@@ -50,9 +74,9 @@ public class ElectroTimeEstimator extends AppCompatActivity {
         boolean isSummerSeason = seasonGroup.getCheckedRadioButtonId() == R.id.summerSeason;
         boolean isWeekday = dayTypeGroup.getCheckedRadioButtonId() == R.id.weekday;
 
-        double peakUsage = Double.parseDouble(peakUsageInput.getText().toString());
-        double halfPeakUsage = Double.parseDouble(halfPeakUsageInput.getText().toString());
-        double offPeakUsage = Double.parseDouble(offPeakUsageInput.getText().toString());
+        double peakUsage = parseDoubleOrZero(peakUsageInput.getText().toString());
+        double halfPeakUsage = parseDoubleOrZero(halfPeakUsageInput.getText().toString());
+        double offPeakUsage = parseDoubleOrZero(offPeakUsageInput.getText().toString());
         double totalUsage = peakUsage + halfPeakUsage + offPeakUsage;
 
         double baseFee = 75.0;
@@ -86,5 +110,40 @@ public class ElectroTimeEstimator extends AppCompatActivity {
         }
 
         resultText.setText(String.format("估計電費: %.2f 元", totalFee));
+    }
+
+    private double parseDoubleOrZero(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
+
+    private void showExitConfirmDialog() {
+        if (hasUserInput()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("確定返回?");
+            builder.setMessage("尚未儲存資料將會被移除");
+            builder.setPositiveButton("確定", (dialog, which) -> finish());
+            builder.setNegativeButton("取消", null);
+            builder.show();
+        } else {
+            finish();
+        }
+    }
+
+    private boolean hasUserInput() {
+        return !peakUsageInput.getText().toString().isEmpty() ||
+                !halfPeakUsageInput.getText().toString().isEmpty() ||
+                !offPeakUsageInput.getText().toString().isEmpty() ||
+                rateTypeGroup.getCheckedRadioButtonId() != -1 ||
+                seasonGroup.getCheckedRadioButtonId() != -1 ||
+                dayTypeGroup.getCheckedRadioButtonId() != -1;
+    }
+
+    @Override
+    public void onBackPressed() {
+        showExitConfirmDialog();
     }
 }
