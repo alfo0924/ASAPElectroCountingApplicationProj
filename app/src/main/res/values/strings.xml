@@ -1,15 +1,12 @@
 <resources>
     <string name="app_name">ASAPElectroCountingApplicationProj</string>
-
     <string-array name="type_array">
         <item>住宅用</item>
         <item>住宅以外非營業用</item>
         <item>營業用</item>
     </string-array>
-
     <string-array name="season_array">
         <item>夏月</item>
         <item>非夏月</item>
     </string-array>
-
 </resources>
