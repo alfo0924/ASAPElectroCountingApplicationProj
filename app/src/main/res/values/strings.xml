@@ -1,5 +1,4 @@
 <resources>
-
     <string name="app_name">ASAPElectroCountingApplicationProj</string>
     <string-array name="type_array">
         <item>住宅用</item>
