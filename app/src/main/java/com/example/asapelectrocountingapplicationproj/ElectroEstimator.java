@@ -12,17 +12,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class ElectroEstimator extends AppCompatActivity {
 
-    private EditText usageEditText;
+    private EditText usageEditText, dateEditText;
     private Spinner typeSpinner, seasonSpinner;
     private Button calculateButton, saveButton, backButton;
     private TextView resultTextView;
-
     private static final String RESIDENTIAL = "住宅用";
     private static final String NON_RESIDENTIAL = "住宅以外非營業用";
     private static final String COMMERCIAL = "營業用";
+    private SimpleDateFormat dateFormat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,19 +35,12 @@ public class ElectroEstimator extends AppCompatActivity {
         initViews();
         setupSpinners();
         setupButtonListeners();
-
-// 添加返回按鈕
-        Button backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish(); // 這會關閉當前活動並返回到ElectroEstimatorPlanChoose
-            }
-        });
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     }
 
     private void initViews() {
         usageEditText = findViewById(R.id.usageEditText);
+        dateEditText = findViewById(R.id.dateEditText);
         typeSpinner = findViewById(R.id.typeSpinner);
         seasonSpinner = findViewById(R.id.seasonSpinner);
         calculateButton = findViewById(R.id.calculateButton);
@@ -82,7 +78,6 @@ public class ElectroEstimator extends AppCompatActivity {
         String type = typeSpinner.getSelectedItem().toString();
         String season = seasonSpinner.getSelectedItem().toString();
         boolean isSummer = season.equals("夏月");
-
         double cost = calculateCost(usage, type, isSummer);
         String result = String.format("預估電費: %.2f 元", cost);
         resultTextView.setText(result);
@@ -92,27 +87,20 @@ public class ElectroEstimator extends AppCompatActivity {
         double[][] rates = getRates(type);
         double totalCost = 0;
         double remainingUsage = usage;
-
-        // 考慮2個月抄表、收費一次的情況
         double multiplier = 2;
 
         for (double[] rate : rates) {
             double limit = rate[0] * multiplier;
             double summerRate = rate[1];
             double nonSummerRate = rate[2];
-
             if (remainingUsage <= 0) break;
-
             double usageInThisTier = Math.min(remainingUsage, limit);
             double costInThisTier = usageInThisTier * (isSummer ? summerRate : nonSummerRate);
-
             totalCost += costInThisTier;
             remainingUsage -= usageInThisTier;
-
             if (limit == Double.MAX_VALUE) break;
         }
 
-        // 如果是公用路燈且非營業用,電費減半
         if (type.equals(NON_RESIDENTIAL) && usage > 0) {
             totalCost *= 0.5;
         }
@@ -143,17 +131,38 @@ public class ElectroEstimator extends AppCompatActivity {
 
     private void saveResult() {
         String result = resultTextView.getText().toString();
+        String dateStr = dateEditText.getText().toString().trim();
+
         if (result.equals("估算結果將顯示在這裡")) {
             Toast.makeText(this, "請先計算電費", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 這裡應該實現保存結果的邏輯,例如保存到數據庫或文件
+        if (dateStr.isEmpty()) {
+            Toast.makeText(this, "請輸入日期", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!isValidDate(dateStr)) {
+            Toast.makeText(this, "請輸入正確的日期格式 (YYYY-MM-DD)", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 這裡應該實現保存結果的邏輯，例如保存到數據庫或文件
         Toast.makeText(this, "結果已保存", Toast.LENGTH_SHORT).show();
     }
 
+    private boolean isValidDate(String dateStr) {
+        try {
+            Date date = dateFormat.parse(dateStr);
+            return dateFormat.format(date).equals(dateStr);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private void handleBackButton() {
-        if (!usageEditText.getText().toString().isEmpty()) {
+        if (!usageEditText.getText().toString().isEmpty() || !dateEditText.getText().toString().isEmpty()) {
             showConfirmDialog();
         } else {
             navigateToMainActivity();
@@ -173,5 +182,10 @@ public class ElectroEstimator extends AppCompatActivity {
         Intent intent = new Intent(ElectroEstimator.this, ElectroEstimatorPlanChoose.class);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        handleBackButton();
     }
 }

@@ -55,7 +55,7 @@
             android:text="計算電費" />
 
         <EditText
-            android:id="@+id/editTextDate"
+            android:id="@+id/dateEditText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
