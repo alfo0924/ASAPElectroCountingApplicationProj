@@ -15,6 +15,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class ElectroBillRecords extends AppCompatActivity {
 
@@ -24,6 +28,7 @@ public class ElectroBillRecords extends AppCompatActivity {
     private ArrayList<String> billsList;
     private ArrayAdapter<String> adapter;
     private SQLiteDatabase db;
+    private SimpleDateFormat dateFormat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +48,8 @@ public class ElectroBillRecords extends AppCompatActivity {
 
         db = openOrCreateDatabase("ElectricityBills", MODE_PRIVATE, null);
         db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL)");
+
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
         loadBills();
 
@@ -88,10 +95,17 @@ public class ElectroBillRecords extends AppCompatActivity {
         String date = etDate.getText().toString().trim();
         String amountStr = etAmount.getText().toString().trim();
         String usageStr = etUsage.getText().toString().trim();
+
+        if (!isValidDate(date)) {
+            Toast.makeText(this, "請輸入正確的日期格式 (YYYY-MM-DD)", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (date.isEmpty() || amountStr.isEmpty() || usageStr.isEmpty()) {
             Toast.makeText(this, "請填寫所有欄位", Toast.LENGTH_SHORT).show();
             return;
         }
+
         double amount = Double.parseDouble(amountStr);
         double usage = Double.parseDouble(usageStr);
         ContentValues values = new ContentValues();
@@ -104,6 +118,15 @@ public class ElectroBillRecords extends AppCompatActivity {
         etUsage.setText("");
         loadBills();
         Toast.makeText(this, "帳單已新增", Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean isValidDate(String dateStr) {
+        try {
+            Date date = dateFormat.parse(dateStr);
+            return dateFormat.format(date).equals(dateStr);
+        } catch (ParseException e) {
+            return false;
+        }
     }
 
     private void showEditDeleteDialog(final int position) {
@@ -144,6 +167,11 @@ public class ElectroBillRecords extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newDate = etEditDate.getText().toString().trim();
+                if (!isValidDate(newDate)) {
+                    Toast.makeText(ElectroBillRecords.this, "請輸入正確的日期格式 (YYYY-MM-DD)", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 double newAmount = Double.parseDouble(etEditAmount.getText().toString().trim());
                 double newUsage = Double.parseDouble(etEditUsage.getText().toString().trim());
 

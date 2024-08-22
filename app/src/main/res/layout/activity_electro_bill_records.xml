@@ -30,7 +30,8 @@
             android:id="@+id/etDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="日期 (YYYY-MM-DD)" />
+            android:hint="日期 (YYYY-MM-DD)"
+            android:inputType="datetime" />
 
         <EditText
             android:id="@+id/etUsage"
