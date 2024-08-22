@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class ElectroBillRecords extends AppCompatActivity {
 
-    private EditText etDate, etAmount, etUsage;
+    private EditText etDate, etAmount, etUsage, etRemark;
     private Button btnAdd, btnBack, btnDelete;
     private ListView lvBills;
     private ArrayList<String> billsList;
@@ -41,6 +41,7 @@ public class ElectroBillRecords extends AppCompatActivity {
         etDate = findViewById(R.id.etDate);
         etAmount = findViewById(R.id.etAmount);
         etUsage = findViewById(R.id.etUsage);
+        etRemark = findViewById(R.id.etRemark);
         btnAdd = findViewById(R.id.btnAdd);
         btnBack = findViewById(R.id.btnBack);
         btnDelete = findViewById(R.id.btnDelete);
@@ -54,7 +55,7 @@ public class ElectroBillRecords extends AppCompatActivity {
         selectedItems = new HashSet<>();
 
         db = openOrCreateDatabase("ElectricityBills", MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL, remark TEXT)");
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -89,7 +90,12 @@ public class ElectroBillRecords extends AppCompatActivity {
                 String date = cursor.getString(1);
                 double amount = cursor.getDouble(2);
                 double usage = cursor.getDouble(3);
-                billsList.add(date + " - $" + String.format("%.2f", amount) + " - " + String.format("%.2f", usage) + " 度");
+                String remark = cursor.getString(4);
+                String billInfo = date + " - $" + String.format("%.2f", amount) + " - " + String.format("%.2f", usage) + " 度";
+                if (remark != null && !remark.isEmpty()) {
+                    billInfo += " - " + remark;
+                }
+                billsList.add(billInfo);
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -101,6 +107,7 @@ public class ElectroBillRecords extends AppCompatActivity {
         String date = etDate.getText().toString().trim();
         String amountStr = etAmount.getText().toString().trim();
         String usageStr = etUsage.getText().toString().trim();
+        String remark = etRemark.getText().toString().trim();
 
         if (!isValidDate(date)) {
             Toast.makeText(this, "請輸入正確的日期格式 (YYYY-MM-DD)", Toast.LENGTH_SHORT).show();
@@ -108,7 +115,7 @@ public class ElectroBillRecords extends AppCompatActivity {
         }
 
         if (date.isEmpty() || amountStr.isEmpty() || usageStr.isEmpty()) {
-            Toast.makeText(this, "請填寫所有欄位", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "請填寫所有必填欄位", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -119,12 +126,14 @@ public class ElectroBillRecords extends AppCompatActivity {
         values.put("date", date);
         values.put("amount", amount);
         values.put("usage", usage);
+        values.put("remark", remark);
 
         db.insert("bills", null, values);
 
         etDate.setText("");
         etAmount.setText("");
         etUsage.setText("");
+        etRemark.setText("");
 
         loadBills();
         Toast.makeText(this, "帳單已新增", Toast.LENGTH_SHORT).show();
@@ -157,16 +166,19 @@ public class ElectroBillRecords extends AppCompatActivity {
         final String oldDate = billInfo[0];
         final double oldAmount = Double.parseDouble(billInfo[1].substring(1));
         final double oldUsage = Double.parseDouble(billInfo[2].split(" ")[0]);
+        final String oldRemark = billInfo.length > 4 ? billInfo[4] : "";
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = getLayoutInflater().inflate(R.layout.dialog_edit_bill, null);
         final EditText etEditDate = view.findViewById(R.id.etEditDate);
         final EditText etEditAmount = view.findViewById(R.id.etEditAmount);
         final EditText etEditUsage = view.findViewById(R.id.etEditUsage);
+        final EditText etEditRemark = view.findViewById(R.id.etEditRemark);
 
         etEditDate.setText(oldDate);
         etEditAmount.setText(String.format(Locale.getDefault(), "%.2f", oldAmount));
         etEditUsage.setText(String.format(Locale.getDefault(), "%.2f", oldUsage));
+        etEditRemark.setText(oldRemark);
 
         builder.setView(view);
         builder.setTitle("編輯帳單");
@@ -179,11 +191,13 @@ public class ElectroBillRecords extends AppCompatActivity {
 
             double newAmount = Double.parseDouble(etEditAmount.getText().toString().trim());
             double newUsage = Double.parseDouble(etEditUsage.getText().toString().trim());
+            String newRemark = etEditRemark.getText().toString().trim();
 
             ContentValues values = new ContentValues();
             values.put("date", newDate);
             values.put("amount", newAmount);
             values.put("usage", newUsage);
+            values.put("remark", newRemark);
 
             db.update("bills", values, "date = ? AND amount = ? AND usage = ?",
                     new String[]{oldDate, String.valueOf(oldAmount), String.valueOf(oldUsage)});
@@ -241,7 +255,7 @@ public class ElectroBillRecords extends AppCompatActivity {
     }
 
     private void showExitConfirmDialog() {
-        if (!etDate.getText().toString().isEmpty() || !etAmount.getText().toString().isEmpty() || !etUsage.getText().toString().isEmpty()) {
+        if (!etDate.getText().toString().isEmpty() || !etAmount.getText().toString().isEmpty() || !etUsage.getText().toString().isEmpty() || !etRemark.getText().toString().isEmpty()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("確定返回?");
             builder.setMessage("尚未儲存資料將會被移除");
