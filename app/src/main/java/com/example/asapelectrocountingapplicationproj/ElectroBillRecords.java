@@ -61,7 +61,7 @@ public class ElectroBillRecords extends AppCompatActivity {
         loadBills();
 
         btnAdd.setOnClickListener(v -> addBill());
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> showExitConfirmDialog());
         btnDelete.setOnClickListener(v -> deleteSelectedBills());
 
         lvBills.setOnItemClickListener((parent, view, position, id) -> {
@@ -114,14 +114,18 @@ public class ElectroBillRecords extends AppCompatActivity {
 
         double amount = Double.parseDouble(amountStr);
         double usage = Double.parseDouble(usageStr);
+
         ContentValues values = new ContentValues();
         values.put("date", date);
         values.put("amount", amount);
         values.put("usage", usage);
+
         db.insert("bills", null, values);
+
         etDate.setText("");
         etAmount.setText("");
         etUsage.setText("");
+
         loadBills();
         Toast.makeText(this, "帳單已新增", Toast.LENGTH_SHORT).show();
     }
@@ -180,8 +184,10 @@ public class ElectroBillRecords extends AppCompatActivity {
             values.put("date", newDate);
             values.put("amount", newAmount);
             values.put("usage", newUsage);
+
             db.update("bills", values, "date = ? AND amount = ? AND usage = ?",
                     new String[]{oldDate, String.valueOf(oldAmount), String.valueOf(oldUsage)});
+
             loadBills();
             Toast.makeText(ElectroBillRecords.this, "帳單已更新", Toast.LENGTH_SHORT).show();
         });
@@ -194,8 +200,10 @@ public class ElectroBillRecords extends AppCompatActivity {
         String date = billInfo[0];
         double amount = Double.parseDouble(billInfo[1].substring(1));
         double usage = Double.parseDouble(billInfo[2].split(" ")[0]);
+
         db.delete("bills", "date = ? AND amount = ? AND usage = ?",
                 new String[]{date, String.valueOf(amount), String.valueOf(usage)});
+
         loadBills();
         Toast.makeText(this, "帳單已刪除", Toast.LENGTH_SHORT).show();
     }
@@ -231,6 +239,25 @@ public class ElectroBillRecords extends AppCompatActivity {
         }
         updateDeleteButtonVisibility();
     }
+
+    private void showExitConfirmDialog() {
+        if (!etDate.getText().toString().isEmpty() || !etAmount.getText().toString().isEmpty() || !etUsage.getText().toString().isEmpty()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("確定返回?");
+            builder.setMessage("尚未儲存資料將會被移除");
+            builder.setPositiveButton("確定", (dialog, which) -> finish());
+            builder.setNegativeButton("取消", null);
+            builder.show();
+        } else {
+            finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        showExitConfirmDialog();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
