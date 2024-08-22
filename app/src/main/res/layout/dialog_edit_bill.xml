@@ -21,7 +21,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:hint="日期 (YYYY-MM-DD)" />
+            android:hint="日期 (YYYY-MM-DD)"
+            android:textAlignment="center" />
 
         <EditText
             android:id="@+id/etEditUsage"
@@ -31,7 +32,8 @@
             android:ems="10"
             android:gravity="center"
             android:hint="用電度數"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:textAlignment="center" />
 
         <EditText
             android:id="@+id/etEditAmount"
@@ -39,7 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:hint="金額"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:textAlignment="center" />
 
         <EditText
             android:id="@+id/etEditRemark"
