@@ -43,7 +43,7 @@
                 android:text="電費估算器" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/recordsButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
@@ -85,6 +85,7 @@
                 android:layout_height="wrap_content"
                 android:text="資訊中心" />
         </LinearLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

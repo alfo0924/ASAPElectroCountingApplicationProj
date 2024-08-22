@@ -8,16 +8,30 @@
     tools:context=".ElectroEstimatorPlanChoose">
 
     <LinearLayout
-        android:layout_width="406dp"
-        android:layout_height="192dp"
-        android:layout_marginTop="250dp"
-        android:layout_marginBottom="245dp"
+
+        android:layout_width="420dp"
+        android:layout_height="368dp"
+        android:layout_marginTop="150dp"
+        android:layout_marginBottom="150dp"
+
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.555"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="請選擇電價計算方式"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <LinearLayout
             android:layout_width="380dp"
@@ -26,13 +40,13 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/normalEstimatorButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="非時間電價" />
 
             <Button
-                android:id="@+id/button7"
+                android:id="@+id/timeEstimatorButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
@@ -40,7 +54,7 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/button8"
+            android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="返回" />
