@@ -1,7 +1,9 @@
 package com.example.asapelectrocountingapplicationproj;
 
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -26,16 +28,17 @@ public class ElectroEstimator extends AppCompatActivity {
     private static final String NON_RESIDENTIAL = "住宅以外非營業用";
     private static final String COMMERCIAL = "營業用";
     private SimpleDateFormat dateFormat;
+    private SQLiteDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_electro_estimator);
-
         initViews();
         setupSpinners();
         setupButtonListeners();
         dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        setupDatabase();
     }
 
     private void initViews() {
@@ -65,6 +68,11 @@ public class ElectroEstimator extends AppCompatActivity {
         calculateButton.setOnClickListener(v -> calculateElectricity());
         saveButton.setOnClickListener(v -> saveResult());
         backButton.setOnClickListener(v -> handleBackButton());
+    }
+
+    private void setupDatabase() {
+        db = openOrCreateDatabase("ElectricityBills", MODE_PRIVATE, null);
+        db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL, remark TEXT)");
     }
 
     private void calculateElectricity() {
@@ -132,6 +140,7 @@ public class ElectroEstimator extends AppCompatActivity {
     private void saveResult() {
         String result = resultTextView.getText().toString();
         String dateStr = dateEditText.getText().toString().trim();
+        String usageStr = usageEditText.getText().toString().trim();
 
         if (result.equals("估算結果將顯示在這裡")) {
             Toast.makeText(this, "請先計算電費", Toast.LENGTH_SHORT).show();
@@ -148,8 +157,25 @@ public class ElectroEstimator extends AppCompatActivity {
             return;
         }
 
-        // 這裡應該實現保存結果的邏輯，例如保存到數據庫或文件
-        Toast.makeText(this, "結果已保存", Toast.LENGTH_SHORT).show();
+        double usage = Double.parseDouble(usageStr);
+        double amount = Double.parseDouble(result.split(": ")[1].replace(" 元", ""));
+        String type = typeSpinner.getSelectedItem().toString();
+        String season = seasonSpinner.getSelectedItem().toString();
+        String remark = type + ", " + season + " - " + usageStr + "度";
+
+        ContentValues values = new ContentValues();
+        values.put("date", dateStr);
+        values.put("amount", amount);
+        values.put("usage", usage);
+        values.put("remark", remark);
+
+        long newRowId = db.insert("bills", null, values);
+        if (newRowId != -1) {
+            Toast.makeText(this, "結果已保存", Toast.LENGTH_SHORT).show();
+            clearInputs();
+        } else {
+            Toast.makeText(this, "保存失敗", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean isValidDate(String dateStr) {
@@ -161,11 +187,19 @@ public class ElectroEstimator extends AppCompatActivity {
         }
     }
 
+    private void clearInputs() {
+        usageEditText.setText("");
+        dateEditText.setText("");
+        resultTextView.setText("估算結果將顯示在這裡");
+        typeSpinner.setSelection(0);
+        seasonSpinner.setSelection(0);
+    }
+
     private void handleBackButton() {
         if (!usageEditText.getText().toString().isEmpty() || !dateEditText.getText().toString().isEmpty()) {
             showConfirmDialog();
         } else {
-            navigateToMainActivity();
+            finish();
         }
     }
 
@@ -173,19 +207,21 @@ public class ElectroEstimator extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle("確定返回?")
                 .setMessage("尚未儲存的資料將會被移除")
-                .setPositiveButton("確定", (dialog, which) -> navigateToMainActivity())
+                .setPositiveButton("確定", (dialog, which) -> finish())
                 .setNegativeButton("取消", null)
                 .show();
-    }
-
-    private void navigateToMainActivity() {
-        Intent intent = new Intent(ElectroEstimator.this, ElectroEstimatorPlanChoose.class);
-        startActivity(intent);
-        finish();
     }
 
     @Override
     public void onBackPressed() {
         handleBackButton();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (db != null) {
+            db.close();
+        }
     }
 }
