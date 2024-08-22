@@ -85,6 +85,7 @@
                 android:layout_height="wrap_content"
                 android:text="資訊中心" />
         </LinearLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
