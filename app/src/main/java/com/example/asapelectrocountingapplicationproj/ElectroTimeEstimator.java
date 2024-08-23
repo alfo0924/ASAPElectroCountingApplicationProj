@@ -23,12 +23,12 @@ public class ElectroTimeEstimator extends AppCompatActivity {
     private TextView resultText;
     private SQLiteDatabase db;
     private SimpleDateFormat dateFormat;
+    private boolean isCalculated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_electro_time_estimator);
-
         initializeViews();
         setupDatabase();
         setupListeners();
@@ -58,6 +58,7 @@ public class ElectroTimeEstimator extends AppCompatActivity {
         calculateButton.setOnClickListener(v -> {
             if (validateInputForCalculation()) {
                 calculateElectricityBill();
+                isCalculated = true;
             } else {
                 Toast.makeText(ElectroTimeEstimator.this, "請輸入用電度數及勾選欄位", Toast.LENGTH_SHORT).show();
             }
@@ -65,7 +66,11 @@ public class ElectroTimeEstimator extends AppCompatActivity {
 
         saveButton.setOnClickListener(v -> {
             if (validateInputForSave()) {
-                saveBill();
+                if (isCalculated) {
+                    saveBill();
+                } else {
+                    Toast.makeText(ElectroTimeEstimator.this, "請點選計算電費", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -93,21 +98,7 @@ public class ElectroTimeEstimator extends AppCompatActivity {
             return false;
         }
 
-        if (peakUsageInput.getText().toString().isEmpty() &&
-                halfPeakUsageInput.getText().toString().isEmpty() &&
-                offPeakUsageInput.getText().toString().isEmpty()) {
-            Toast.makeText(this, "請輸入用電度數", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        if (rateTypeGroup.getCheckedRadioButtonId() == -1 ||
-                seasonGroup.getCheckedRadioButtonId() == -1 ||
-                dayTypeGroup.getCheckedRadioButtonId() == -1) {
-            Toast.makeText(this, "請勾選所有欄位", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        return true;
+        return validateInputForCalculation();
     }
 
     private boolean isValidDate(String dateStr) {
@@ -203,9 +194,9 @@ public class ElectroTimeEstimator extends AppCompatActivity {
         remark.append("費率類型: ").append(rateTypeGroup.getCheckedRadioButtonId() == R.id.twoStageRate ? "兩段式" : "三段式").append(", ");
         remark.append("季節: ").append(seasonGroup.getCheckedRadioButtonId() == R.id.summerSeason ? "夏季" : "非夏季").append(", ");
         remark.append("日期類型: ").append(dayTypeGroup.getCheckedRadioButtonId() == R.id.weekday ? "平日" : "假日").append(", ");
-        remark.append("尖峰用電: ").append(peakUsageInput.getText()).append(", ");
-        remark.append("半尖峰用電: ").append(halfPeakUsageInput.getText()).append(", ");
-        remark.append("離峰用電: ").append(offPeakUsageInput.getText());
+        remark.append("尖峰用電: ").append(peakUsageInput.getText()).append("度, ");
+        remark.append("半尖峰用電: ").append(halfPeakUsageInput.getText()).append("度, ");
+        remark.append("離峰用電: ").append(offPeakUsageInput.getText()).append("度");
         return remark.toString();
     }
 
@@ -218,6 +209,7 @@ public class ElectroTimeEstimator extends AppCompatActivity {
         seasonGroup.clearCheck();
         dayTypeGroup.clearCheck();
         resultText.setText("");
+        isCalculated = false;
     }
 
     private void showExitConfirmDialog() {
