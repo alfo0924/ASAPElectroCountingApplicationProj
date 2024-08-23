@@ -157,18 +157,13 @@ public class ElectroEstimator extends AppCompatActivity {
             return;
         }
 
-        if (usageStr.isEmpty() || typeSpinner.getSelectedItemPosition() == 0 || seasonSpinner.getSelectedItemPosition() == 0) {
-            Toast.makeText(this, "請輸入用電度數和點選欄位", Toast.LENGTH_SHORT).show();
+        if (usageStr.isEmpty()) {
+            Toast.makeText(this, "請輸入用電度數", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!isCalculated) {
             Toast.makeText(this, "請點選計算電費", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (result.equals("估算結果將顯示在這裡")) {
-            Toast.makeText(this, "請先計算電費", Toast.LENGTH_SHORT).show();
             return;
         }
 
