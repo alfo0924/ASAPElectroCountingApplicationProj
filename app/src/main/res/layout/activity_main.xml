@@ -65,6 +65,13 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/deviceButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="電器用電" />
+
+            <Button
                 android:id="@+id/button4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

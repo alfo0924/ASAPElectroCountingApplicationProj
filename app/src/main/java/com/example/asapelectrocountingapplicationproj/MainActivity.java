@@ -57,6 +57,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        Button selectElectroDeviceButton = findViewById(R.id.deviceButton);
+        selectElectroDeviceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, activity_electro_device.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void startCountdown() {
