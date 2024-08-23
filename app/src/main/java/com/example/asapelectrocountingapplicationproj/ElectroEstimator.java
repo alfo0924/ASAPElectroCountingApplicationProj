@@ -29,11 +29,13 @@ public class ElectroEstimator extends AppCompatActivity {
     private static final String COMMERCIAL = "營業用";
     private SimpleDateFormat dateFormat;
     private SQLiteDatabase db;
+    private boolean isCalculated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_electro_estimator);
+
         initViews();
         setupSpinners();
         setupButtonListeners();
@@ -53,19 +55,22 @@ public class ElectroEstimator extends AppCompatActivity {
     }
 
     private void setupSpinners() {
-        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this,
+        ArrayAdapter typeAdapter = ArrayAdapter.createFromResource(this,
                 R.array.type_array, android.R.layout.simple_spinner_item);
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(typeAdapter);
 
-        ArrayAdapter<CharSequence> seasonAdapter = ArrayAdapter.createFromResource(this,
+        ArrayAdapter seasonAdapter = ArrayAdapter.createFromResource(this,
                 R.array.season_array, android.R.layout.simple_spinner_item);
         seasonAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         seasonSpinner.setAdapter(seasonAdapter);
     }
 
     private void setupButtonListeners() {
-        calculateButton.setOnClickListener(v -> calculateElectricity());
+        calculateButton.setOnClickListener(v -> {
+            calculateElectricity();
+            isCalculated = true;
+        });
         saveButton.setOnClickListener(v -> saveResult());
         backButton.setOnClickListener(v -> handleBackButton());
     }
@@ -142,11 +147,6 @@ public class ElectroEstimator extends AppCompatActivity {
         String dateStr = dateEditText.getText().toString().trim();
         String usageStr = usageEditText.getText().toString().trim();
 
-        if (result.equals("估算結果將顯示在這裡")) {
-            Toast.makeText(this, "請先計算電費", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         if (dateStr.isEmpty()) {
             Toast.makeText(this, "請輸入日期", Toast.LENGTH_SHORT).show();
             return;
@@ -154,6 +154,21 @@ public class ElectroEstimator extends AppCompatActivity {
 
         if (!isValidDate(dateStr)) {
             Toast.makeText(this, "請輸入正確的日期格式 (YYYY-MM-DD)", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (usageStr.isEmpty() || typeSpinner.getSelectedItemPosition() == 0 || seasonSpinner.getSelectedItemPosition() == 0) {
+            Toast.makeText(this, "請輸入用電度數和點選欄位", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!isCalculated) {
+            Toast.makeText(this, "請點選計算電費", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (result.equals("估算結果將顯示在這裡")) {
+            Toast.makeText(this, "請先計算電費", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -193,6 +208,7 @@ public class ElectroEstimator extends AppCompatActivity {
         resultTextView.setText("估算結果將顯示在這裡");
         typeSpinner.setSelection(0);
         seasonSpinner.setSelection(0);
+        isCalculated = false;
     }
 
     private void handleBackButton() {
