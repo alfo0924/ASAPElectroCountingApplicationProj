@@ -87,11 +87,27 @@ public class ElectroTimeEstimator extends AppCompatActivity {
             Toast.makeText(this, "請輸入日期", Toast.LENGTH_SHORT).show();
             return false;
         }
+
         if (!isValidDate(date)) {
             Toast.makeText(this, "請輸入正確的日期格式 (YYYY-MM-DD)", Toast.LENGTH_SHORT).show();
             return false;
         }
-        return validateInputForCalculation();
+
+        if (peakUsageInput.getText().toString().isEmpty() &&
+                halfPeakUsageInput.getText().toString().isEmpty() &&
+                offPeakUsageInput.getText().toString().isEmpty()) {
+            Toast.makeText(this, "請輸入用電度數", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (rateTypeGroup.getCheckedRadioButtonId() == -1 ||
+                seasonGroup.getCheckedRadioButtonId() == -1 ||
+                dayTypeGroup.getCheckedRadioButtonId() == -1) {
+            Toast.makeText(this, "請勾選所有欄位", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isValidDate(String dateStr) {
@@ -112,10 +128,12 @@ public class ElectroTimeEstimator extends AppCompatActivity {
         boolean isTwoStageRate = rateTypeGroup.getCheckedRadioButtonId() == R.id.twoStageRate;
         boolean isSummerSeason = seasonGroup.getCheckedRadioButtonId() == R.id.summerSeason;
         boolean isWeekday = dayTypeGroup.getCheckedRadioButtonId() == R.id.weekday;
+
         double peakUsage = parseDoubleOrZero(peakUsageInput.getText().toString());
         double halfPeakUsage = parseDoubleOrZero(halfPeakUsageInput.getText().toString());
         double offPeakUsage = parseDoubleOrZero(offPeakUsageInput.getText().toString());
         double totalUsage = peakUsage + halfPeakUsage + offPeakUsage;
+
         double baseFee = 75.0;
         double totalFee = baseFee;
 
@@ -185,11 +203,12 @@ public class ElectroTimeEstimator extends AppCompatActivity {
         remark.append("費率類型: ").append(rateTypeGroup.getCheckedRadioButtonId() == R.id.twoStageRate ? "兩段式" : "三段式").append(", ");
         remark.append("季節: ").append(seasonGroup.getCheckedRadioButtonId() == R.id.summerSeason ? "夏季" : "非夏季").append(", ");
         remark.append("日期類型: ").append(dayTypeGroup.getCheckedRadioButtonId() == R.id.weekday ? "平日" : "假日").append(", ");
-        remark.append("尖峰用電: ").append(peakUsageInput.getText()).append("度, ");
-        remark.append("半尖峰用電: ").append(halfPeakUsageInput.getText()).append("度, ");
-        remark.append("離峰用電: ").append(offPeakUsageInput.getText()).append("度");
+        remark.append("尖峰用電: ").append(peakUsageInput.getText()).append(", ");
+        remark.append("半尖峰用電: ").append(halfPeakUsageInput.getText()).append(", ");
+        remark.append("離峰用電: ").append(offPeakUsageInput.getText());
         return remark.toString();
     }
+
     private void clearInputs() {
         dateInput.setText("");
         peakUsageInput.setText("");
