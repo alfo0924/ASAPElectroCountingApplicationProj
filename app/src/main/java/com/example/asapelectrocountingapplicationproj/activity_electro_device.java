@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -15,13 +16,10 @@ import java.util.HashMap;
 
 public class activity_electro_device extends AppCompatActivity {
 
-    private static final String RESIDENTIAL = "住宅用";
-    private static final String NON_RESIDENTIAL = "住宅以外非營業用";
-    private static final String COMMERCIAL = "營業用";
-
     private HashMap<String, String> appliancePowerMap;
     private Spinner applianceSpinner, hoursSpinner, daysSpinner, summerSpinner, businessSpinner;
-    private TextView powerTextView;
+    private TextView powerTextView; // 用 TextView 來顯示電力消耗
+    private EditText totalTextView; // 用 EditText 來顯示總合計度數
     private ListView deviceListView;
     private ArrayList<String> deviceList;
     private ArrayAdapter<String> deviceListAdapter;
@@ -61,30 +59,33 @@ public class activity_electro_device extends AppCompatActivity {
 
         // 初始化 TextView 和 Spinner
         powerTextView = findViewById(R.id.power_text_view);
+        totalTextView = findViewById(R.id.totalkWh);
         applianceSpinner = findViewById(R.id.appliance_spinner);
         hoursSpinner = findViewById(R.id.hours_spinner);
         daysSpinner = findViewById(R.id.days_spinner);
-        deviceListView = findViewById(R.id.deviceListView);
         summerSpinner = findViewById(R.id.summerSpinner);
         businessSpinner = findViewById(R.id.businessSpinner);
+        deviceListView = findViewById(R.id.deviceListView);
 
         // 設置電器名稱下拉選單
         ArrayAdapter<String> applianceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, appliancePowerMap.keySet().toArray(new String[0]));
         applianceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         applianceSpinner.setAdapter(applianceAdapter);
 
-        // 當選擇電器名稱時更新顯示
+        // 當選擇電器名稱時
         applianceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedAppliance = parent.getItemAtPosition(position).toString();
-                String power = appliancePowerMap.get(selectedAppliance);
-                powerTextView.setText(power + " W");
+                // 獲取選擇的電器名稱
+                String selectedAppliance = applianceSpinner.getSelectedItem().toString();
+                // 根據選擇的電器名稱，顯示相應的電力消耗
+                String powerStr = appliancePowerMap.get(selectedAppliance);
+                powerTextView.setText(String.format("%s W", powerStr));
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                powerTextView.setText("");
+                // 略過
             }
         });
 
@@ -106,14 +107,14 @@ public class activity_electro_device extends AppCompatActivity {
         daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         daysSpinner.setAdapter(daysAdapter);
 
-        // 設置夏季與非夏季下拉選單
+        // 設置夏季/非夏季下拉選單
         String[] summerOptions = {"夏季", "非夏季"};
         ArrayAdapter<String> summerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, summerOptions);
         summerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         summerSpinner.setAdapter(summerAdapter);
 
         // 設置電力用途下拉選單
-        String[] businessOptions = {RESIDENTIAL, NON_RESIDENTIAL, COMMERCIAL};
+        String[] businessOptions = {"住宅用", "住宅以外非營業用", "營業用"};
         ArrayAdapter<String> businessAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, businessOptions);
         businessAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         businessSpinner.setAdapter(businessAdapter);
@@ -140,10 +141,6 @@ public class activity_electro_device extends AppCompatActivity {
                 String daysStr = daysSpinner.getSelectedItem().toString();
                 int days = Integer.parseInt(daysStr);
 
-                // 取得選取的季節與用途
-                String summerOption = summerSpinner.getSelectedItem().toString();
-                String businessOption = businessSpinner.getSelectedItem().toString();
-
                 // 檢查小時數是否為 0
                 if (hours == 0) {
                     // 顯示提示對話框
@@ -158,24 +155,29 @@ public class activity_electro_device extends AppCompatActivity {
                 // 計算度數
                 double kWh = power * hours * days / 1000.0;
 
-                // 根據用途類型和季節來調整電費計算 (假設有額外費用需求)
-                double additionalCost = 0.0;
-                if (summerOption.equals("夏季")) {
-                    additionalCost += 0.2; // 假設夏季加收 0.2 單位
-                }
-                if (businessOption.equals(COMMERCIAL)) {
-                    additionalCost += 0.5; // 假設營業用加收 0.5 單位
-                }
-
-                double totalCost = kWh + additionalCost;
-
                 // 建立顯示的字符串，只包含電器名稱和計算出來的度數
-                String result = String.format("%s: %.2f 度 (總電費: %.2f 單位)", selectedAppliance, kWh, totalCost);
+                String result = String.format("%s: %.2f 度", selectedAppliance, kWh);
 
                 // 將結果添加到列表並更新顯示
                 deviceList.add(result);
                 deviceListAdapter.notifyDataSetChanged();
+
+                // 計算合計度數
+                updateTotalConsumption();
             }
         });
+    }
+
+    // 更新合計度數的方法
+    private void updateTotalConsumption() {
+        double total = 0.0;
+        for (String item : deviceList) {
+            String[] parts = item.split(": ");
+            if (parts.length > 1) {
+                String kWhStr = parts[1].replace(" 度", "");
+                total += Double.parseDouble(kWhStr);
+            }
+        }
+        totalTextView.setText(String.format("%.2f", total)); // 只顯示數字
     }
 }
