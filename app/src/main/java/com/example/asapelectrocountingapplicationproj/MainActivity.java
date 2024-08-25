@@ -43,5 +43,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // 找到分析按鈕
+        Button analyzeButton = findViewById(R.id.analyzeButton);
+        analyzeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, analyze.class);
+                startActivity(intent);
+            }
+        });
+
     }
 }

@@ -51,7 +51,7 @@
                 android:text="電費紀錄" />
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/analyzeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="分析" />
