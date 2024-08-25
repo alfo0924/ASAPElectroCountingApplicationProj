@@ -56,7 +56,7 @@ public class settings extends AppCompatActivity {
         currentTextSize = sharedPreferences.getFloat(KEY_TEXT_SIZE, 18);
         currentBackgroundColor = sharedPreferences.getInt(KEY_BACKGROUND_COLOR, Color.WHITE);
         currentTextColor = sharedPreferences.getInt(KEY_TEXT_COLOR, Color.BLACK);
-        currentButtonColor = sharedPreferences.getInt(KEY_BUTTON_COLOR, Color.BLUE);
+        currentButtonColor = sharedPreferences.getInt(KEY_BUTTON_COLOR, Color.GRAY);
 
         seekBarTextSize.setProgress((int) currentTextSize - 14);
         tvTextSizePreview.setTextSize(currentTextSize);

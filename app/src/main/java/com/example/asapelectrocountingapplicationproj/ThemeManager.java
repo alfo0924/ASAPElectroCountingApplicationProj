@@ -22,7 +22,7 @@ public class ThemeManager {
         int backgroundColor = prefs.getInt(KEY_BACKGROUND_COLOR, Color.WHITE);
         int textColor = prefs.getInt(KEY_TEXT_COLOR, Color.BLACK);
         float textSize = prefs.getFloat(KEY_TEXT_SIZE, 18);
-        int buttonColor = prefs.getInt(KEY_BUTTON_COLOR, Color.BLUE);
+        int buttonColor = prefs.getInt(KEY_BUTTON_COLOR, Color.GRAY);
 
         activity.getWindow().getDecorView().setBackgroundColor(backgroundColor);
         applyThemeToViewHierarchy(activity.getWindow().getDecorView(), textColor, textSize, buttonColor);
