@@ -29,12 +29,13 @@ public class ThemeManager {
     }
 
     private static void applyThemeToViewHierarchy(View view, int textColor, float textSize, int buttonColor) {
-        if (view instanceof TextView && !(view instanceof Button)) {
+        if (view instanceof TextView) {
             ((TextView) view).setTextColor(textColor);
             ((TextView) view).setTextSize(textSize);
-        } else if (view instanceof Button) {
+        }
+        if (view instanceof Button) {
             ((Button) view).setBackgroundColor(buttonColor);
-            ((Button) view).setTextColor(getContrastColor(buttonColor));
+            ((Button) view).setTextColor(textColor);
         }
 
         if (view instanceof ViewGroup) {
@@ -43,11 +44,6 @@ public class ThemeManager {
                 applyThemeToViewHierarchy(viewGroup.getChildAt(i), textColor, textSize, buttonColor);
             }
         }
-    }
-
-    public static int getContrastColor(int color) {
-        double luminance = (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
-        return luminance > 0.5 ? Color.BLACK : Color.WHITE;
     }
 
     public static void saveTheme(Context context, float textSize, int backgroundColor, int textColor, int buttonColor) {

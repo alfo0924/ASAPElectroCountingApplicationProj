@@ -1,6 +1,9 @@
 package com.example.asapelectrocountingapplicationproj;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.widget.Button;
 import androidx.activity.EdgeToEdge;
@@ -43,9 +46,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private final BroadcastReceiver themeChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("com.example.asapelectrocountingapplicationproj.THEME_CHANGED".equals(intent.getAction())) {
+                ThemeManager.applyTheme(MainActivity.this);
+            }
+        }
+    };
+
     @Override
     protected void onResume() {
         super.onResume();
+        registerReceiver(themeChangeReceiver, new IntentFilter("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
         ThemeManager.applyTheme(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(themeChangeReceiver);
     }
 }

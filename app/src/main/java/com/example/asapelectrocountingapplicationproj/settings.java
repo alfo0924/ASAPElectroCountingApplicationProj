@@ -1,5 +1,6 @@
 package com.example.asapelectrocountingapplicationproj;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -61,7 +62,7 @@ public class settings extends AppCompatActivity {
         tvTextSizePreview.setTextSize(currentTextSize);
         getWindow().getDecorView().setBackgroundColor(currentBackgroundColor);
         tvTextSizePreview.setTextColor(currentTextColor);
-        updateButtonColors(currentButtonColor);
+        updateButtonColors();
     }
 
     private void setupListeners() {
@@ -89,23 +90,22 @@ public class settings extends AppCompatActivity {
         btnReset.setOnClickListener(v -> resetSettings());
     }
 
-    private void updateButtonColors(int color) {
-        btnBackgroundColor.setBackgroundColor(color);
-        btnTextColor.setBackgroundColor(color);
-        btnButtonColor.setBackgroundColor(color);
-        btnClearData.setBackgroundColor(color);
-        btnReturn.setBackgroundColor(color);
-        btnApply.setBackgroundColor(color);
-        btnReset.setBackgroundColor(color);
+    private void updateButtonColors() {
+        btnBackgroundColor.setBackgroundColor(currentButtonColor);
+        btnTextColor.setBackgroundColor(currentButtonColor);
+        btnButtonColor.setBackgroundColor(currentButtonColor);
+        btnClearData.setBackgroundColor(currentButtonColor);
+        btnReturn.setBackgroundColor(currentButtonColor);
+        btnApply.setBackgroundColor(currentButtonColor);
+        btnReset.setBackgroundColor(currentButtonColor);
 
-        int textColor = ThemeManager.getContrastColor(color);
-        btnBackgroundColor.setTextColor(textColor);
-        btnTextColor.setTextColor(textColor);
-        btnButtonColor.setTextColor(textColor);
-        btnClearData.setTextColor(textColor);
-        btnReturn.setTextColor(textColor);
-        btnApply.setTextColor(textColor);
-        btnReset.setTextColor(textColor);
+        btnBackgroundColor.setTextColor(currentTextColor);
+        btnTextColor.setTextColor(currentTextColor);
+        btnButtonColor.setTextColor(currentTextColor);
+        btnClearData.setTextColor(currentTextColor);
+        btnReturn.setTextColor(currentTextColor);
+        btnApply.setTextColor(currentTextColor);
+        btnReset.setTextColor(currentTextColor);
     }
 
     private void showColorPicker(String title, final String key) {
@@ -122,9 +122,10 @@ public class settings extends AppCompatActivity {
                 } else if (key.equals(KEY_TEXT_COLOR)) {
                     currentTextColor = color;
                     tvTextSizePreview.setTextColor(color);
+                    updateButtonColors();
                 } else if (key.equals(KEY_BUTTON_COLOR)) {
                     currentButtonColor = color;
-                    updateButtonColors(color);
+                    updateButtonColors();
                 }
                 settingsChanged = true;
             }
@@ -150,6 +151,8 @@ public class settings extends AppCompatActivity {
         settingsChanged = false;
         Toast.makeText(this, "設置已套用", Toast.LENGTH_SHORT).show();
         ThemeManager.applyTheme(this);
+        // 通知其他活動更新主題
+        sendBroadcast(new Intent("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
     }
 
     private void resetSettings() {
@@ -161,6 +164,8 @@ public class settings extends AppCompatActivity {
                     loadSettings();
                     ThemeManager.applyTheme(this);
                     Toast.makeText(settings.this, "所有設置已重置", Toast.LENGTH_SHORT).show();
+                    // 通知其他活動更新主題
+                    sendBroadcast(new Intent("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
                 })
                 .setNegativeButton("取消", null)
                 .show();
@@ -175,6 +180,8 @@ public class settings extends AppCompatActivity {
                     loadSettings();
                     ThemeManager.applyTheme(this);
                     Toast.makeText(settings.this, "所有數據已清除", Toast.LENGTH_SHORT).show();
+                    // 通知其他活動更新主題
+                    sendBroadcast(new Intent("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
                 })
                 .setNegativeButton("取消", null)
                 .show();
