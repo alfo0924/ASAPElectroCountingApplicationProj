@@ -61,6 +61,9 @@ public class analyze extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
         downloadButton.setOnClickListener(v -> handleDownload());
         ThemeManager.applyTheme(this);
+
+        // 在界面加載時自動更新圖表
+        updateChart(0); // 默認顯示用電分析
     }
 
     private void setupSpinner() {
@@ -301,5 +304,6 @@ public class analyze extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         ThemeManager.applyTheme(this);
+        updateChart(analysisTypeSpinner.getSelectedItemPosition());
     }
 }
