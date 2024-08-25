@@ -2,6 +2,7 @@ package com.example.asapelectrocountingapplicationproj;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
@@ -182,6 +183,8 @@ public class settings extends AppCompatActivity {
                     Toast.makeText(settings.this, "所有數據已清除", Toast.LENGTH_SHORT).show();
                     // 通知其他活動更新主題
                     sendBroadcast(new Intent("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
+                    // 清除 ElectroBillRecords 中的所有帳單記錄
+                    clearElectroBillRecords();
                 })
                 .setNegativeButton("取消", null)
                 .show();
@@ -192,6 +195,12 @@ public class settings extends AppCompatActivity {
         editor.clear();
         editor.apply();
         settingsChanged = false;
+    }
+
+    private void clearElectroBillRecords() {
+        SQLiteDatabase db = openOrCreateDatabase("ElectricityBills", MODE_PRIVATE, null);
+        db.execSQL("DELETE FROM bills");
+        db.close();
     }
 
     @Override
