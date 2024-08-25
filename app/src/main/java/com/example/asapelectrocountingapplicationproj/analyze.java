@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.os.Environment;
@@ -154,7 +153,17 @@ public class analyze extends AppCompatActivity {
         chart.setNoDataText("無資料");
         chart.setNoDataTextColor(Color.BLACK);
         chart.invalidate();
-        Toast.makeText(this, "目前沒有可分析的資料", Toast.LENGTH_SHORT).show();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("提示")
+                .setMessage("目前沒有可分析的資料")
+                .setPositiveButton("確定", (dialog, which) -> {
+                    // 用戶點擊確定按鈕後的操作（如果需要）
+                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void drawChart(List<Entry> entries, List<String> dates, int analysisType) {
@@ -211,7 +220,7 @@ public class analyze extends AppCompatActivity {
 
     private void handleDownload() {
         if (!hasData) {
-            Toast.makeText(this, "無資料可下載", Toast.LENGTH_SHORT).show();
+            showNoDataMessage();
         } else {
             showDownloadDialog();
         }
