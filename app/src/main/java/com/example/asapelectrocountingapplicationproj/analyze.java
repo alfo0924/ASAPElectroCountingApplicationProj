@@ -5,7 +5,10 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -25,13 +28,10 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.pdf.PdfWriter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -236,7 +236,20 @@ public class analyze extends AppCompatActivity {
     }
 
     private void downloadChart(String format) {
-        Bitmap bitmap = chart.getChartBitmap();
+        // 確保圖表已完全渲染
+        chart.invalidate();
+
+        // 獲取圖表的完整尺寸
+        int width = chart.getWidth();
+        int height = chart.getHeight();
+
+        // 創建一個與圖表大小相同的位圖
+        Bitmap chartBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(chartBitmap);
+
+        // 繪製圖表到位圖
+        chart.draw(canvas);
+
         String fileName = "chart_" + System.currentTimeMillis();
         File file;
 
@@ -245,25 +258,23 @@ public class analyze extends AppCompatActivity {
             if (format.equals("jpg")) {
                 file = new File(directory, fileName + ".jpg");
                 FileOutputStream fos = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                chartBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                 fos.close();
             } else {
                 file = new File(directory, fileName + ".pdf");
-                Document document = new Document();
-                PdfWriter.getInstance(document, new FileOutputStream(file));
-                document.open();
+                PdfDocument pdfDocument = new PdfDocument();
+                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, height, 1).create();
+                PdfDocument.Page page = pdfDocument.startPage(pageInfo);
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] bitmapData = stream.toByteArray();
+                Canvas pdfCanvas = page.getCanvas();
+                pdfCanvas.drawBitmap(chartBitmap, 0, 0, null);
 
-                Image image = Image.getInstance(bitmapData);
-
-                document.add(image);
-                document.close();
+                pdfDocument.finishPage(page);
+                pdfDocument.writeTo(new FileOutputStream(file));
+                pdfDocument.close();
             }
             runOnUiThread(() -> Toast.makeText(analyze.this, "圖表已下載", Toast.LENGTH_SHORT).show());
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             runOnUiThread(() -> Toast.makeText(analyze.this, "下載失敗", Toast.LENGTH_SHORT).show());
         }
