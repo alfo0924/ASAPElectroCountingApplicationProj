@@ -22,16 +22,19 @@ public class ThemeManager {
         int backgroundColor = prefs.getInt(KEY_BACKGROUND_COLOR, Color.WHITE);
         int textColor = prefs.getInt(KEY_TEXT_COLOR, Color.BLACK);
         float textSize = prefs.getFloat(KEY_TEXT_SIZE, 18);
-        int buttonColor = prefs.getInt(KEY_BUTTON_COLOR, Color.GRAY);
+        int buttonColor = prefs.getInt(KEY_BUTTON_COLOR, Color.BLUE);
 
         activity.getWindow().getDecorView().setBackgroundColor(backgroundColor);
         applyThemeToViewHierarchy(activity.getWindow().getDecorView(), textColor, textSize, buttonColor);
     }
 
     private static void applyThemeToViewHierarchy(View view, int textColor, float textSize, int buttonColor) {
-        if (view instanceof TextView) {
-            ((TextView) view).setTextColor(textColor);
-            ((TextView) view).setTextSize(textSize);
+        if (view instanceof TextView && !(view instanceof Button)) {
+            TextView textView = (TextView) view;
+            if (textView.getId() != R.id.titleTextView) { // 排除標題文本
+                textView.setTextColor(textColor);
+                textView.setTextSize(textSize);
+            }
         }
         if (view instanceof Button) {
             ((Button) view).setBackgroundColor(buttonColor);
