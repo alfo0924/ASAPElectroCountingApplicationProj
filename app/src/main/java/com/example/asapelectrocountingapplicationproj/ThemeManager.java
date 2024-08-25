@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class ThemeManager {
@@ -37,6 +38,11 @@ public class ThemeManager {
                 textView.setTextColor(textColor);
                 textView.setTextSize(textSize);
             }
+        }
+        if (view instanceof EditText) {
+            EditText editText = (EditText) view;
+            editText.setTextColor(textColor);
+            editText.setHintTextColor(getContrastColor(backgroundColor));
         }
         if (view instanceof Button) {
             ((Button) view).setBackgroundColor(buttonColor);

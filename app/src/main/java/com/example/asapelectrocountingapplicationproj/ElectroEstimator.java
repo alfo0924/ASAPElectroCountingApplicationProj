@@ -1,8 +1,11 @@
 package com.example.asapelectrocountingapplicationproj;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
@@ -238,9 +241,25 @@ public class ElectroEstimator extends AppCompatActivity {
             db.close();
         }
     }
+    private final BroadcastReceiver themeChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("com.example.asapelectrocountingapplicationproj.THEME_CHANGED".equals(intent.getAction())) {
+                ThemeManager.applyTheme(ElectroEstimator.this);
+            }
+        }
+    };
+
     @Override
     protected void onResume() {
         super.onResume();
+        registerReceiver(themeChangeReceiver, new IntentFilter("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
         ThemeManager.applyTheme(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(themeChangeReceiver);
     }
 }
