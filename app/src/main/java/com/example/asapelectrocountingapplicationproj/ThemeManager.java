@@ -6,8 +6,10 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class ThemeManager {
@@ -26,10 +28,10 @@ public class ThemeManager {
         int buttonColor = prefs.getInt(KEY_BUTTON_COLOR, Color.LTGRAY);
 
         activity.getWindow().getDecorView().setBackgroundColor(backgroundColor);
-        applyThemeToViewHierarchy(activity.getWindow().getDecorView(), textColor, textSize, buttonColor, backgroundColor);
+        applyThemeToViewHierarchy(activity, activity.getWindow().getDecorView(), textColor, textSize, buttonColor, backgroundColor);
     }
 
-    private static void applyThemeToViewHierarchy(View view, int textColor, float textSize, int buttonColor, int backgroundColor) {
+    private static void applyThemeToViewHierarchy(Context context, View view, int textColor, float textSize, int buttonColor, int backgroundColor) {
         if (view instanceof TextView) {
             TextView textView = (TextView) view;
             if (textView.getId() == R.id.titleTextView) {
@@ -48,11 +50,33 @@ public class ThemeManager {
             ((Button) view).setBackgroundColor(buttonColor);
             ((Button) view).setTextColor(textColor);
         }
+        if (view instanceof android.widget.Spinner) {
+            android.widget.Spinner spinner = (android.widget.Spinner) view;
+            spinner.setBackgroundColor(buttonColor);
+
+            // Set the text color for the selected item
+            if (spinner.getSelectedView() instanceof TextView) {
+                ((TextView) spinner.getSelectedView()).setTextColor(getContrastColor(buttonColor));
+            }
+
+            // Set the text color for the dropdown items
+            spinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                    if (view instanceof TextView) {
+                        ((TextView) view).setTextColor(getContrastColor(buttonColor));
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+            });
+        }
 
         if (view instanceof ViewGroup) {
             ViewGroup viewGroup = (ViewGroup) view;
             for (int i = 0; i < viewGroup.getChildCount(); i++) {
-                applyThemeToViewHierarchy(viewGroup.getChildAt(i), textColor, textSize, buttonColor, backgroundColor);
+                applyThemeToViewHierarchy(context, viewGroup.getChildAt(i), textColor, textSize, buttonColor, backgroundColor);
             }
         }
     }
