@@ -1,9 +1,13 @@
 package com.example.asapelectrocountingapplicationproj;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,7 +25,13 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.pdf.PdfWriter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +41,9 @@ public class analyze extends AppCompatActivity {
     private Spinner analysisTypeSpinner;
     private LineChart chart;
     private Button backButton;
+    private Button downloadButton;
     private SQLiteDatabase db;
+    private boolean hasData = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +53,14 @@ public class analyze extends AppCompatActivity {
         analysisTypeSpinner = findViewById(R.id.analysisTypeSpinner);
         chart = findViewById(R.id.chart);
         backButton = findViewById(R.id.backButton);
+        downloadButton = findViewById(R.id.downloadButton);
 
         setupSpinner();
         setupChart();
         setupDatabase();
 
         backButton.setOnClickListener(v -> finish());
+        downloadButton.setOnClickListener(v -> handleDownload());
         ThemeManager.applyTheme(this);
     }
 
@@ -101,38 +115,38 @@ public class analyze extends AppCompatActivity {
 
         if (cursor.getCount() == 0) {
             showNoDataMessage();
+            hasData = false;
+        } else {
+            if (cursor.moveToFirst()) {
+                do {
+                    String dateStr = cursor.getString(0);
+                    float amount = cursor.getFloat(1);
+                    float usage = cursor.getFloat(2);
+
+                    dates.add(dateStr);
+                    switch (analysisType) {
+                        case 0: // 用電分析
+                            entries.add(new Entry(entries.size(), usage));
+                            break;
+                        case 1: // 電費分析
+                            entries.add(new Entry(entries.size(), amount));
+                            break;
+                        case 2: // 總分析
+                            entries.add(new Entry(entries.size(), amount / usage));
+                            break;
+                    }
+                } while (cursor.moveToNext());
+            }
             cursor.close();
-            return;
+
+            if (entries.isEmpty()) {
+                showNoDataMessage();
+                hasData = false;
+            } else {
+                hasData = true;
+                drawChart(entries, dates, analysisType);
+            }
         }
-
-        if (cursor.moveToFirst()) {
-            do {
-                String dateStr = cursor.getString(0);
-                float amount = cursor.getFloat(1);
-                float usage = cursor.getFloat(2);
-
-                dates.add(dateStr);
-                switch (analysisType) {
-                    case 0: // 用電分析
-                        entries.add(new Entry(entries.size(), usage));
-                        break;
-                    case 1: // 電費分析
-                        entries.add(new Entry(entries.size(), amount));
-                        break;
-                    case 2: // 總分析
-                        entries.add(new Entry(entries.size(), amount / usage));
-                        break;
-                }
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-
-        if (entries.isEmpty()) {
-            showNoDataMessage();
-            return;
-        }
-
-        drawChart(entries, dates, analysisType);
     }
 
     private void showNoDataMessage() {
@@ -193,6 +207,66 @@ public class analyze extends AppCompatActivity {
 
         chart.animateX(1000);
         chart.invalidate();
+    }
+
+    private void handleDownload() {
+        if (!hasData) {
+            Toast.makeText(this, "無資料可下載", Toast.LENGTH_SHORT).show();
+        } else {
+            showDownloadDialog();
+        }
+    }
+
+    private void showDownloadDialog() {
+        final CharSequence[] items = {"JPG", "PDF"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("選擇下載格式");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                if (item == 0) {
+                    downloadChart("jpg");
+                } else {
+                    downloadChart("pdf");
+                }
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void downloadChart(String format) {
+        Bitmap bitmap = chart.getChartBitmap();
+        String fileName = "chart_" + System.currentTimeMillis();
+        File file;
+
+        try {
+            File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (format.equals("jpg")) {
+                file = new File(directory, fileName + ".jpg");
+                FileOutputStream fos = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos.close();
+            } else {
+                file = new File(directory, fileName + ".pdf");
+                Document document = new Document();
+                PdfWriter.getInstance(document, new FileOutputStream(file));
+                document.open();
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] bitmapData = stream.toByteArray();
+
+                Image image = Image.getInstance(bitmapData);
+
+                document.add(image);
+                document.close();
+            }
+            runOnUiThread(() -> Toast.makeText(analyze.this, "圖表已下載", Toast.LENGTH_SHORT).show());
+        } catch (Exception e) {
+            e.printStackTrace();
+            runOnUiThread(() -> Toast.makeText(analyze.this, "下載失敗", Toast.LENGTH_SHORT).show());
+        }
     }
 
     @Override
