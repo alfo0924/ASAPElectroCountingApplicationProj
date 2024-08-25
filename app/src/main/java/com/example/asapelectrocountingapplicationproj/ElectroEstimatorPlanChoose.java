@@ -15,6 +15,9 @@ public class ElectroEstimatorPlanChoose extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ThemeManager.applyTheme(this);
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_electro_estimator_plan_choose);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -56,5 +59,10 @@ public class ElectroEstimatorPlanChoose extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         finish(); // 直接關閉當前活動，返回到MainActivity
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ThemeManager.applyTheme(this);
     }
 }

@@ -41,6 +41,9 @@ public class ElectroEstimator extends AppCompatActivity {
         setupButtonListeners();
         dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         setupDatabase();
+
+        ThemeManager.applyTheme(this);
+
     }
 
     private void initViews() {
@@ -234,5 +237,10 @@ public class ElectroEstimator extends AppCompatActivity {
         if (db != null) {
             db.close();
         }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ThemeManager.applyTheme(this);
     }
 }

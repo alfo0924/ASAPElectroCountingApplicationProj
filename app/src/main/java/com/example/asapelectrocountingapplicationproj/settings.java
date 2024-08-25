@@ -7,10 +7,8 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class settings extends AppCompatActivity {
@@ -99,6 +97,15 @@ public class settings extends AppCompatActivity {
         btnReturn.setBackgroundColor(color);
         btnApply.setBackgroundColor(color);
         btnReset.setBackgroundColor(color);
+
+        int textColor = ThemeManager.getContrastColor(color);
+        btnBackgroundColor.setTextColor(textColor);
+        btnTextColor.setTextColor(textColor);
+        btnButtonColor.setTextColor(textColor);
+        btnClearData.setTextColor(textColor);
+        btnReturn.setTextColor(textColor);
+        btnApply.setTextColor(textColor);
+        btnReset.setTextColor(textColor);
     }
 
     private void showColorPicker(String title, final String key) {

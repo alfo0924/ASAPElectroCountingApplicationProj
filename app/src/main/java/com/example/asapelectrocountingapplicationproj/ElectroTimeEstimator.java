@@ -32,6 +32,9 @@ public class ElectroTimeEstimator extends AppCompatActivity {
         initializeViews();
         setupDatabase();
         setupListeners();
+
+        ThemeManager.applyTheme(this);
+
     }
 
     private void initializeViews() {
@@ -247,4 +250,11 @@ public class ElectroTimeEstimator extends AppCompatActivity {
             db.close();
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ThemeManager.applyTheme(this);
+    }
+
 }

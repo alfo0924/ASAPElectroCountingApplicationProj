@@ -46,6 +46,8 @@ public class analyze extends AppCompatActivity {
         setupDatabase();
 
         backButton.setOnClickListener(v -> finish());
+
+        ThemeManager.applyTheme(this);
     }
 
     private void setupSpinner() {
@@ -176,5 +178,10 @@ public class analyze extends AppCompatActivity {
         if (db != null) {
             db.close();
         }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ThemeManager.applyTheme(this);
     }
 }
