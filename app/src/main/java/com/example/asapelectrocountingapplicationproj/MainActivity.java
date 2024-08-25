@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -17,51 +18,36 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        ThemeManager.applyTheme(this);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // 找到電費估算器按鈕
-        Button estimatorButton = findViewById(R.id.estimatorButton);
-        estimatorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ElectroEstimatorPlanChoose.class);
-                startActivity(intent);
-            }
+        setupButtons();
+    }
+
+    private void setupButtons() {
+        setupButton(R.id.estimatorButton, ElectroEstimatorPlanChoose.class);
+        setupButton(R.id.recordsButton, ElectroBillRecords.class);
+        setupButton(R.id.analyzeButton, analyze.class);
+        setupButton(R.id.settingsButton, settings.class);
+    }
+
+    private void setupButton(int buttonId, final Class<?> destinationClass) {
+        Button button = findViewById(buttonId);
+        button.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, destinationClass);
+            startActivity(intent);
         });
+    }
 
-        // 找到電費紀錄按鈕
-        Button recordsButton = findViewById(R.id.recordsButton);
-        recordsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ElectroBillRecords.class);
-                startActivity(intent);
-            }
-        });
-
-        // 找到分析按鈕
-        Button analyzeButton = findViewById(R.id.analyzeButton);
-        analyzeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, analyze.class);
-                startActivity(intent);
-            }
-        });
-
-
-        Button settingsButton = findViewById(R.id.settingsButton);
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, settings.class);
-                startActivity(intent);
-            }
-        });
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ThemeManager.applyTheme(this);
     }
 }

@@ -2,10 +2,7 @@ package com.example.asapelectrocountingapplicationproj;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -13,7 +10,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.drawable.DrawableCompat;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -21,16 +17,17 @@ public class settings extends AppCompatActivity {
 
     private SeekBar seekBarTextSize;
     private TextView tvTextSizePreview;
-    private Button btnBackgroundColor, btnTextColor, btnButtonColor, btnClearData;
-    private Button btnReturn, btnApply, btnReset;
+    private Button btnBackgroundColor, btnTextColor, btnButtonColor, btnClearData, btnReturn, btnApply, btnReset;
     private SharedPreferences sharedPreferences;
-    private static final String PREF_NAME = "AppSettings";
+    private static final String PREF_NAME = "AppTheme";
     private static final String KEY_TEXT_SIZE = "text_size";
     private static final String KEY_BACKGROUND_COLOR = "background_color";
     private static final String KEY_TEXT_COLOR = "text_color";
     private static final String KEY_BUTTON_COLOR = "button_color";
 
     private boolean settingsChanged = false;
+    private float currentTextSize;
+    private int currentBackgroundColor, currentTextColor, currentButtonColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +53,25 @@ public class settings extends AppCompatActivity {
         btnReset = findViewById(R.id.btnReset);
     }
 
+    private void loadSettings() {
+        currentTextSize = sharedPreferences.getFloat(KEY_TEXT_SIZE, 18);
+        currentBackgroundColor = sharedPreferences.getInt(KEY_BACKGROUND_COLOR, Color.WHITE);
+        currentTextColor = sharedPreferences.getInt(KEY_TEXT_COLOR, Color.BLACK);
+        currentButtonColor = sharedPreferences.getInt(KEY_BUTTON_COLOR, Color.BLUE);
+
+        seekBarTextSize.setProgress((int) currentTextSize - 14);
+        tvTextSizePreview.setTextSize(currentTextSize);
+        getWindow().getDecorView().setBackgroundColor(currentBackgroundColor);
+        tvTextSizePreview.setTextColor(currentTextColor);
+        updateButtonColors(currentButtonColor);
+    }
+
     private void setupListeners() {
         seekBarTextSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float textSize = 14 + progress;
-                tvTextSizePreview.setTextSize(textSize);
+                currentTextSize = 14 + progress;
+                tvTextSizePreview.setTextSize(currentTextSize);
                 settingsChanged = true;
             }
 
@@ -76,40 +86,19 @@ public class settings extends AppCompatActivity {
         btnTextColor.setOnClickListener(v -> showColorPicker("文字顏色", KEY_TEXT_COLOR));
         btnButtonColor.setOnClickListener(v -> showColorPicker("按鈕顏色", KEY_BUTTON_COLOR));
         btnClearData.setOnClickListener(v -> showClearDataConfirmDialog());
-
         btnReturn.setOnClickListener(v -> handleReturn());
         btnApply.setOnClickListener(v -> applySettings());
         btnReset.setOnClickListener(v -> resetSettings());
     }
 
-    private void loadSettings() {
-        float textSize = sharedPreferences.getFloat(KEY_TEXT_SIZE, 18);
-        int backgroundColor = sharedPreferences.getInt(KEY_BACKGROUND_COLOR, Color.WHITE);
-        int textColor = sharedPreferences.getInt(KEY_TEXT_COLOR, Color.BLACK);
-        int buttonColor = sharedPreferences.getInt(KEY_BUTTON_COLOR, Color.BLUE);
-
-        seekBarTextSize.setProgress((int) textSize - 14);
-        tvTextSizePreview.setTextSize(textSize);
-        getWindow().getDecorView().setBackgroundColor(backgroundColor);
-        tvTextSizePreview.setTextColor(textColor);
-        updateButtonColors(buttonColor);
-    }
-
     private void updateButtonColors(int color) {
-        setButtonColor(btnBackgroundColor, color);
-        setButtonColor(btnTextColor, color);
-        setButtonColor(btnButtonColor, color);
-        setButtonColor(btnClearData, color);
-        setButtonColor(btnReturn, color);
-        setButtonColor(btnApply, color);
-        setButtonColor(btnReset, color);
-    }
-
-    private void setButtonColor(Button button, int color) {
-        Drawable buttonDrawable = button.getBackground();
-        buttonDrawable = DrawableCompat.wrap(buttonDrawable);
-        DrawableCompat.setTint(buttonDrawable, color);
-        button.setBackground(buttonDrawable);
+        btnBackgroundColor.setBackgroundColor(color);
+        btnTextColor.setBackgroundColor(color);
+        btnButtonColor.setBackgroundColor(color);
+        btnClearData.setBackgroundColor(color);
+        btnReturn.setBackgroundColor(color);
+        btnApply.setBackgroundColor(color);
+        btnReset.setBackgroundColor(color);
     }
 
     private void showColorPicker(String title, final String key) {
@@ -121,10 +110,13 @@ public class settings extends AppCompatActivity {
             @Override
             public void onOk(AmbilWarnaDialog dialog, int color) {
                 if (key.equals(KEY_BACKGROUND_COLOR)) {
+                    currentBackgroundColor = color;
                     getWindow().getDecorView().setBackgroundColor(color);
                 } else if (key.equals(KEY_TEXT_COLOR)) {
+                    currentTextColor = color;
                     tvTextSizePreview.setTextColor(color);
                 } else if (key.equals(KEY_BUTTON_COLOR)) {
+                    currentButtonColor = color;
                     updateButtonColors(color);
                 }
                 settingsChanged = true;
@@ -147,24 +139,10 @@ public class settings extends AppCompatActivity {
     }
 
     private void applySettings() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putFloat(KEY_TEXT_SIZE, tvTextSizePreview.getTextSize() / getResources().getDisplayMetrics().scaledDensity);
-        editor.putInt(KEY_BACKGROUND_COLOR, ((ColorDrawable) getWindow().getDecorView().getBackground()).getColor());
-        editor.putInt(KEY_TEXT_COLOR, tvTextSizePreview.getCurrentTextColor());
-        editor.putInt(KEY_BUTTON_COLOR, getButtonColor(btnBackgroundColor));
-        editor.apply();
-
+        ThemeManager.saveTheme(this, currentTextSize, currentBackgroundColor, currentTextColor, currentButtonColor);
         settingsChanged = false;
         Toast.makeText(this, "設置已套用", Toast.LENGTH_SHORT).show();
-    }
-
-    private int getButtonColor(Button button) {
-        Drawable buttonDrawable = button.getBackground();
-        if (buttonDrawable instanceof ColorDrawable) {
-            return ((ColorDrawable) buttonDrawable).getColor();
-        } else {
-            return Color.BLUE; // 默認顏色
-        }
+        ThemeManager.applyTheme(this);
     }
 
     private void resetSettings() {
@@ -174,6 +152,7 @@ public class settings extends AppCompatActivity {
                 .setPositiveButton("確定", (dialog, which) -> {
                     clearAllData();
                     loadSettings();
+                    ThemeManager.applyTheme(this);
                     Toast.makeText(settings.this, "所有設置已重置", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("取消", null)
@@ -186,6 +165,8 @@ public class settings extends AppCompatActivity {
                 .setMessage("確定要清除所有設置和數據嗎？此操作不可逆。")
                 .setPositiveButton("確定", (dialog, which) -> {
                     clearAllData();
+                    loadSettings();
+                    ThemeManager.applyTheme(this);
                     Toast.makeText(settings.this, "所有數據已清除", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("取消", null)
@@ -196,7 +177,6 @@ public class settings extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.apply();
-        loadSettings();
         settingsChanged = false;
     }
 
