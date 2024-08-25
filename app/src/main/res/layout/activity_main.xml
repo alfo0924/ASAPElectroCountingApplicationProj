@@ -54,7 +54,7 @@
                 android:id="@+id/button3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="用電分析" />
+                android:text="分析" />
         </LinearLayout>
 
         <LinearLayout
@@ -63,13 +63,6 @@
             android:layout_marginBottom="30dp"
             android:gravity="center"
             android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/button4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="電費分析" />
 
             <Button
                 android:id="@+id/button5"
