@@ -14,18 +14,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class analyze extends AppCompatActivity {
 
@@ -64,6 +62,7 @@ public class analyze extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
             }
         });
     }
@@ -79,7 +78,12 @@ public class analyze extends AppCompatActivity {
         XAxis xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
-        xAxis.setValueFormatter(new IndexAxisValueFormatter());
+        xAxis.setLabelRotationAngle(45);
+
+        YAxis leftAxis = chart.getAxisLeft();
+        leftAxis.setDrawGridLines(false);
+
+        chart.getAxisRight().setEnabled(false);
     }
 
     private void setupDatabase() {
@@ -116,15 +120,19 @@ public class analyze extends AppCompatActivity {
         cursor.close();
 
         LineDataSet dataSet;
+        String yAxisLabel;
         switch (analysisType) {
             case 0:
-                dataSet = new LineDataSet(entries, "用電量 (度)");
+                dataSet = new LineDataSet(entries, "用電量");
+                yAxisLabel = "度";
                 break;
             case 1:
-                dataSet = new LineDataSet(entries, "電費 (元)");
+                dataSet = new LineDataSet(entries, "電費");
+                yAxisLabel = "元";
                 break;
             default:
-                dataSet = new LineDataSet(entries, "平均電費 (元/度)");
+                dataSet = new LineDataSet(entries, "平均電費");
+                yAxisLabel = "元/度";
                 break;
         }
 
@@ -132,15 +140,33 @@ public class analyze extends AppCompatActivity {
         dataSet.setLineWidth(2f);
         dataSet.setCircleColor(Color.BLUE);
         dataSet.setCircleRadius(4f);
-        dataSet.setDrawValues(false);
+        dataSet.setDrawValues(true);
+        dataSet.setValueTextSize(10f);
 
         LineData lineData = new LineData(dataSet);
         chart.setData(lineData);
 
         XAxis xAxis = chart.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
-        xAxis.setLabelRotationAngle(45);
+        xAxis.setLabelCount(dates.size(), true);
 
+        YAxis leftAxis = chart.getAxisLeft();
+        leftAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return String.format("%.1f %s", value, yAxisLabel);
+            }
+        });
+
+        leftAxis.setAxisMinimum(0f);
+        float maxValue = Collections.max(entries, (e1, e2) -> Float.compare(e1.getY(), e2.getY())).getY();
+        leftAxis.setAxisMaximum(maxValue * 1.1f);
+
+        chart.getDescription().setEnabled(true);
+        chart.getDescription().setText(dataSet.getLabel());
+        chart.getDescription().setTextSize(12f);
+
+        chart.animateX(1000);
         chart.invalidate();
     }
 
