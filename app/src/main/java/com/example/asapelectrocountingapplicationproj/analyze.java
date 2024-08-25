@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -46,7 +47,6 @@ public class analyze extends AppCompatActivity {
         setupDatabase();
 
         backButton.setOnClickListener(v -> finish());
-
         ThemeManager.applyTheme(this);
     }
 
@@ -99,6 +99,12 @@ public class analyze extends AppCompatActivity {
         String query = "SELECT date, amount, usage FROM bills ORDER BY date ASC";
         Cursor cursor = db.rawQuery(query, null);
 
+        if (cursor.getCount() == 0) {
+            showNoDataMessage();
+            cursor.close();
+            return;
+        }
+
         if (cursor.moveToFirst()) {
             do {
                 String dateStr = cursor.getString(0);
@@ -121,6 +127,23 @@ public class analyze extends AppCompatActivity {
         }
         cursor.close();
 
+        if (entries.isEmpty()) {
+            showNoDataMessage();
+            return;
+        }
+
+        drawChart(entries, dates, analysisType);
+    }
+
+    private void showNoDataMessage() {
+        chart.clear();
+        chart.setNoDataText("無資料");
+        chart.setNoDataTextColor(Color.BLACK);
+        chart.invalidate();
+        Toast.makeText(this, "目前沒有可分析的資料", Toast.LENGTH_SHORT).show();
+    }
+
+    private void drawChart(List<Entry> entries, List<String> dates, int analysisType) {
         LineDataSet dataSet;
         String yAxisLabel;
         switch (analysisType) {
@@ -179,6 +202,7 @@ public class analyze extends AppCompatActivity {
             db.close();
         }
     }
+
     @Override
     protected void onResume() {
         super.onResume();
