@@ -25,13 +25,15 @@ public class ThemeManager {
         int buttonColor = prefs.getInt(KEY_BUTTON_COLOR, Color.LTGRAY);
 
         activity.getWindow().getDecorView().setBackgroundColor(backgroundColor);
-        applyThemeToViewHierarchy(activity.getWindow().getDecorView(), textColor, textSize, buttonColor);
+        applyThemeToViewHierarchy(activity.getWindow().getDecorView(), textColor, textSize, buttonColor, backgroundColor);
     }
 
-    private static void applyThemeToViewHierarchy(View view, int textColor, float textSize, int buttonColor) {
-        if (view instanceof TextView && !(view instanceof Button)) {
+    private static void applyThemeToViewHierarchy(View view, int textColor, float textSize, int buttonColor, int backgroundColor) {
+        if (view instanceof TextView) {
             TextView textView = (TextView) view;
-            if (textView.getId() != R.id.titleTextView) { // 排除標題文本
+            if (textView.getId() == R.id.titleTextView) {
+                textView.setTextColor(getContrastColor(backgroundColor));
+            } else if (!(textView instanceof Button)) {
                 textView.setTextColor(textColor);
                 textView.setTextSize(textSize);
             }
@@ -44,7 +46,7 @@ public class ThemeManager {
         if (view instanceof ViewGroup) {
             ViewGroup viewGroup = (ViewGroup) view;
             for (int i = 0; i < viewGroup.getChildCount(); i++) {
-                applyThemeToViewHierarchy(viewGroup.getChildAt(i), textColor, textSize, buttonColor);
+                applyThemeToViewHierarchy(viewGroup.getChildAt(i), textColor, textSize, buttonColor, backgroundColor);
             }
         }
     }
@@ -56,5 +58,10 @@ public class ThemeManager {
         editor.putInt(KEY_TEXT_COLOR, textColor);
         editor.putInt(KEY_BUTTON_COLOR, buttonColor);
         editor.apply();
+    }
+
+    public static int getContrastColor(int color) {
+        double luminance = (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
+        return luminance > 0.5 ? Color.BLACK : Color.WHITE;
     }
 }
