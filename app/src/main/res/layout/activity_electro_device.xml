@@ -55,13 +55,13 @@
                 android:gravity="center"
                 android:textAlignment="center" />
 
-            <TextView
+            <EditText
                 android:id="@+id/power_text_view"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:scrollbarSize="0dp" />
+                android:inputType="text" />
         </LinearLayout>
 
         <LinearLayout
@@ -217,9 +217,12 @@
                 android:id="@+id/deviceListView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="top"
                 android:layout_marginTop="20dp" />
 
         </LinearLayout>
+
+
 
     </LinearLayout>
 
