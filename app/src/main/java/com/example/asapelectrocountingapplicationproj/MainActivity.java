@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setupButton(R.id.recordsButton, ElectroBillRecords.class);
         setupButton(R.id.analyzeButton, analyze.class);
         setupButton(R.id.settingsButton, settings.class);
+        setupButton(R.id.infoButton, Information.class);
     }
 
     private void setupButton(int buttonId, final Class<?> destinationClass) {
