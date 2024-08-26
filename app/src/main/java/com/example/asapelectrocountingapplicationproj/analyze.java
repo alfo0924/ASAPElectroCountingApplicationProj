@@ -97,28 +97,6 @@ public class analyze extends AppCompatActivity {
 
         getWindow().getDecorView().setBackgroundColor(backgroundColor);
 
-        // 設置 Spinner 的背景為透明
-        analysisTypeSpinner.setBackgroundColor(Color.TRANSPARENT);
-
-        // 更新 Spinner 的文字顏色
-        ArrayAdapter adapter = (ArrayAdapter) analysisTypeSpinner.getAdapter();
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        analysisTypeSpinner.setAdapter(adapter);
-
-        // 設置 Spinner 選中項的文字顏色
-        analysisTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (view instanceof TextView) {
-                    ((TextView) view).setTextColor(ThemeManager.getContrastColor(backgroundColor));
-                }
-                updateChart(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
         backButton.setBackgroundColor(buttonColor);
         backButton.setTextColor(textColor);
         backButton.setTextSize(textSize);
@@ -127,17 +105,47 @@ public class analyze extends AppCompatActivity {
         downloadButton.setTextColor(textColor);
         downloadButton.setTextSize(textSize);
 
-        // 更新圖表的顏色
-        updateChartAppearance(backgroundColor, textColor);
+        updateSpinnerAppearance(backgroundColor);
+        updateChartAppearance(backgroundColor);
     }
 
-    private void updateChartAppearance(int backgroundColor, int textColor) {
+    private void updateSpinnerAppearance(int backgroundColor) {
+        analysisTypeSpinner.setBackgroundColor(Color.TRANSPARENT);
+        int textColor = ThemeManager.getContrastColor(backgroundColor);
+
+        ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) analysisTypeSpinner.getAdapter();
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        analysisTypeSpinner.setAdapter(adapter);
+
+        analysisTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (view instanceof TextView) {
+                    ((TextView) view).setTextColor(textColor);
+                }
+                updateChart(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    private void updateChartAppearance(int backgroundColor) {
+        int textColor = ThemeManager.getContrastColor(backgroundColor);
+
         chart.setBackgroundColor(backgroundColor);
         chart.getDescription().setTextColor(textColor);
         chart.getLegend().setTextColor(textColor);
         chart.getXAxis().setTextColor(textColor);
         chart.getAxisLeft().setTextColor(textColor);
         chart.getAxisRight().setTextColor(textColor);
+
+        if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
+            LineDataSet dataSet = (LineDataSet) chart.getData().getDataSetByIndex(0);
+            dataSet.setValueTextColor(textColor);
+        }
+
         chart.invalidate();
     }
 
@@ -215,7 +223,7 @@ public class analyze extends AppCompatActivity {
     private void showNoDataMessage() {
         chart.clear();
         chart.setNoDataText("無資料");
-        chart.setNoDataTextColor(Color.BLACK);
+        chart.setNoDataTextColor(ThemeManager.getContrastColor(sharedPreferences.getInt("background_color", Color.WHITE)));
         chart.invalidate();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -248,12 +256,15 @@ public class analyze extends AppCompatActivity {
                 break;
         }
 
+        int textColor = ThemeManager.getContrastColor(sharedPreferences.getInt("background_color", Color.WHITE));
+
         dataSet.setColor(Color.BLUE);
         dataSet.setLineWidth(2f);
         dataSet.setCircleColor(Color.BLUE);
         dataSet.setCircleRadius(4f);
         dataSet.setDrawValues(true);
         dataSet.setValueTextSize(10f);
+        dataSet.setValueTextColor(textColor);
 
         LineData lineData = new LineData(dataSet);
         chart.setData(lineData);
@@ -277,8 +288,11 @@ public class analyze extends AppCompatActivity {
         chart.getDescription().setEnabled(true);
         chart.getDescription().setText(dataSet.getLabel());
         chart.getDescription().setTextSize(12f);
+        chart.getDescription().setTextColor(textColor);
         chart.animateX(1000);
         chart.invalidate();
+
+        updateChartAppearance(sharedPreferences.getInt("background_color", Color.WHITE));
     }
 
     private void handleDownload() {
