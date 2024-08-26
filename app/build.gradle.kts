@@ -43,4 +43,5 @@ dependencies {
     implementation ("com.github.yukuku:ambilwarna:2.0.1")
     implementation ("com.itextpdf:itextg:5.5.10")
     implementation ("org.jsoup:jsoup:1.14.3")
+
 }
