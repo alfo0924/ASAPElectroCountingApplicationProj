@@ -1,5 +1,6 @@
 package com.example.asapelectrocountingapplicationproj;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -11,6 +12,12 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +32,10 @@ public class activity_electro_device extends AppCompatActivity {
     private ListView deviceListView;
     private ArrayList<String> deviceList;
     private ArrayAdapter<String> deviceListAdapter;
+    private PieChart pieChart;
+    private Button createGraphButton;
+    private boolean isPieChartVisible = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +66,9 @@ public class activity_electro_device extends AppCompatActivity {
         // 設置顯示用的 ListView
         setupDeviceListView();
 
+        // 設置圓餅圖
+        setupPieChart();
+
         // 設置按鈕事件
         setupAddDataDeviceButton();
 
@@ -69,7 +83,31 @@ public class activity_electro_device extends AppCompatActivity {
                 finish(); // 這會關閉當前活動並返回到MainActivity
             }
         });
+
+        // 初始化按钮和图表
+        createGraphButton = findViewById(R.id.createGraph);
+        pieChart = findViewById(R.id.pieChart);
+
+        // 設置按鈕點擊事件
+        createGraphButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isPieChartVisible) {
+                    // 如果 PieChart 已經顯示，則隱藏它
+                    pieChart.setVisibility(View.GONE);
+                } else {
+                    // 如果 PieChart 沒有顯示，則顯示並更新它
+                    pieChart.setVisibility(View.VISIBLE);
+                    updatePieChart(); // 更新圓餅圖
+                }
+                // 切換 PieChart 的顯示狀態
+                isPieChartVisible = !isPieChartVisible;
+            }
+        });
+
+
     }
+
 
     private void initAppliancePowerMap() {
         appliancePowerMap = new HashMap<>();
@@ -110,6 +148,7 @@ public class activity_electro_device extends AppCompatActivity {
         summerSpinner = findViewById(R.id.summerSpinner);
         businessSpinner = findViewById(R.id.businessSpinner);
         deviceListView = findViewById(R.id.deviceListView);
+        pieChart = findViewById(R.id.pieChart); // 初始化 PieChart
     }
 
     private void setupApplianceSpinner() {
@@ -172,6 +211,25 @@ public class activity_electro_device extends AppCompatActivity {
         deviceListView.setAdapter(deviceListAdapter);
     }
 
+    private void setupPieChart() {
+        pieChart.setUsePercentValues(true);
+        pieChart.setExtraOffsets(5, 10, 5, 5);
+        pieChart.setDragDecelerationFrictionCoef(0.95f);
+        pieChart.setDrawHoleEnabled(true);
+        pieChart.setHoleColor(Color.WHITE);
+        pieChart.setTransparentCircleColor(Color.WHITE);
+        pieChart.setTransparentCircleAlpha(110);
+        pieChart.setHoleRadius(58f);
+        pieChart.setTransparentCircleRadius(61f);
+        pieChart.setDrawCenterText(true);
+        pieChart.setRotationAngle(0);
+        pieChart.setRotationEnabled(true);
+        pieChart.setHighlightPerTapEnabled(true);
+        pieChart.setCenterText("電器耗電量");
+        pieChart.setCenterTextSize(20f);
+        pieChart.setDrawEntryLabels(true);
+    }
+
     private void setupAddDataDeviceButton() {
         Button addDataDeviceButton = findViewById(R.id.addDataDevice);
         addDataDeviceButton.setOnClickListener(new View.OnClickListener() {
@@ -185,14 +243,15 @@ public class activity_electro_device extends AppCompatActivity {
     private void setupLongClickDelete() {
         deviceListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 new AlertDialog.Builder(activity_electro_device.this)
-                        .setTitle("刪除資料")
+                        .setTitle("刪除")
                         .setMessage("確定要刪除此筆資料？")
                         .setPositiveButton("確定", (dialog, which) -> {
                             deviceList.remove(position);
                             deviceListAdapter.notifyDataSetChanged();
                             updateTotalAndEstimate();
+                            updatePieChart(); // 更新圓餅圖
                         })
                         .setNegativeButton("取消", null)
                         .show();
@@ -245,8 +304,8 @@ public class activity_electro_device extends AppCompatActivity {
         deviceList.add(result);
         deviceListAdapter.notifyDataSetChanged();
 
-
         updateTotalAndEstimate();
+        updatePieChart(); // 更新圓餅圖
     }
 
     private void updateTotalAndEstimate() {
@@ -281,7 +340,6 @@ public class activity_electro_device extends AppCompatActivity {
         totalTextView.setText(String.format("%.2f", totalKWh));
         estimateExpenseTextView.setText(String.format("%.2f", totalBill));
     }
-
 
     private double calculateBill(int kWh, boolean isSummer, String businessType) {
         if (businessType.equals("住宅用") || businessType.equals("住宅以外非營業用")) {
@@ -334,5 +392,45 @@ public class activity_electro_device extends AppCompatActivity {
         }
 
         return bill;
+    }
+
+    private void updatePieChart() {
+        HashMap<String, Double> applianceConsumptionMap = new HashMap<>();
+
+        // 收集每個電器的總耗電量
+        for (String item : deviceList) {
+            String[] parts = item.split(":");
+            if (parts.length >= 3) {
+                String appliancePart = parts[0].trim();
+                String[] kWhPart = parts[1].split(" 度");
+
+                if (kWhPart.length > 0) {
+                    try {
+                        double kWh = Double.parseDouble(kWhPart[0].trim());
+                        // 更新總耗電量
+                        applianceConsumptionMap.put(appliancePart,
+                                applianceConsumptionMap.getOrDefault(appliancePart, 0.0) + kWh);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        // 準備 PieChart 的數據
+        ArrayList<PieEntry> entries = new ArrayList<>();
+        for (String appliance : applianceConsumptionMap.keySet()) {
+            double consumption = applianceConsumptionMap.get(appliance);
+            entries.add(new PieEntry((float) consumption, appliance)); // 轉換為 float
+        }
+
+        PieDataSet dataSet = new PieDataSet(entries, "電器耗電量");
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setValueTextSize(16f);
+
+        PieData pieData = new PieData(dataSet);
+        pieChart.setData(pieData);
+        pieChart.invalidate(); // 刷新圖表
     }
 }
