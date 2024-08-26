@@ -1,12 +1,7 @@
 package com.example.asapelectrocountingapplicationproj;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -20,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,22 +44,10 @@ public class analyze extends AppCompatActivity {
     private SQLiteDatabase db;
     private boolean hasData = false;
 
-    private BroadcastReceiver themeChangeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if ("com.example.asapelectrocountingapplicationproj.THEME_CHANGED".equals(intent.getAction())) {
-                ThemeManager.applyTheme(analyze.this);
-                updateChartTheme();
-                updateSpinnerTheme();
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analyze);
-        ThemeManager.applyTheme(this);
 
         analysisTypeSpinner = findViewById(R.id.analysisTypeSpinner);
         chart = findViewById(R.id.chart);
@@ -78,22 +60,8 @@ public class analyze extends AppCompatActivity {
 
         backButton.setOnClickListener(v -> finish());
         downloadButton.setOnClickListener(v -> handleDownload());
-
-        updateChart(0); // 預設顯示用電分析
-        updateChartTheme();
-        updateSpinnerTheme();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        registerReceiver(themeChangeReceiver, new IntentFilter("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(themeChangeReceiver);
+        // 在界面加載時自動更新圖表
+        updateChart(0); // 默認顯示用電分析
     }
 
     private void setupSpinner() {
@@ -101,6 +69,7 @@ public class analyze extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, analysisTypes);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         analysisTypeSpinner.setAdapter(adapter);
+
         analysisTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -109,7 +78,7 @@ public class analyze extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // 不做任何事
+                // Do nothing
             }
         });
     }
@@ -129,6 +98,7 @@ public class analyze extends AppCompatActivity {
 
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
+
         chart.getAxisRight().setEnabled(false);
     }
 
@@ -139,6 +109,7 @@ public class analyze extends AppCompatActivity {
     private void updateChart(int analysisType) {
         List<Entry> entries = new ArrayList<>();
         List<String> dates = new ArrayList<>();
+
         String query = "SELECT date, amount, usage FROM bills ORDER BY date ASC";
         Cursor cursor = db.rawQuery(query, null);
 
@@ -151,8 +122,8 @@ public class analyze extends AppCompatActivity {
                     String dateStr = cursor.getString(0);
                     float amount = cursor.getFloat(1);
                     float usage = cursor.getFloat(2);
-                    dates.add(dateStr);
 
+                    dates.add(dateStr);
                     switch (analysisType) {
                         case 0: // 用電分析
                             entries.add(new Entry(entries.size(), usage));
@@ -191,6 +162,7 @@ public class analyze extends AppCompatActivity {
                     // 用戶點擊確定按鈕後的操作（如果需要）
                 })
                 .setCancelable(false);
+
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -198,7 +170,6 @@ public class analyze extends AppCompatActivity {
     private void drawChart(List<Entry> entries, List<String> dates, int analysisType) {
         LineDataSet dataSet;
         String yAxisLabel;
-
         switch (analysisType) {
             case 0:
                 dataSet = new LineDataSet(entries, "用電量");
@@ -235,6 +206,7 @@ public class analyze extends AppCompatActivity {
                 return String.format("%.1f %s", value, yAxisLabel);
             }
         });
+
         leftAxis.setAxisMinimum(0f);
         float maxValue = Collections.max(entries, (e1, e2) -> Float.compare(e1.getY(), e2.getY())).getY();
         leftAxis.setAxisMaximum(maxValue * 1.1f);
@@ -242,6 +214,7 @@ public class analyze extends AppCompatActivity {
         chart.getDescription().setEnabled(true);
         chart.getDescription().setText(dataSet.getLabel());
         chart.getDescription().setTextSize(12f);
+
         chart.animateX(1000);
         chart.invalidate();
     }
@@ -256,6 +229,7 @@ public class analyze extends AppCompatActivity {
 
     private void showDownloadDialog() {
         final CharSequence[] items = {"JPG", "PDF"};
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("選擇下載格式");
         builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -272,11 +246,18 @@ public class analyze extends AppCompatActivity {
     }
 
     private void downloadChart(String format) {
+        // 確保圖表已完全渲染
         chart.invalidate();
+
+        // 獲取圖表的完整尺寸
         int width = chart.getWidth();
         int height = chart.getHeight();
+
+        // 創建一個與圖表大小相同的位圖
         Bitmap chartBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(chartBitmap);
+
+        // 繪製圖表到位圖
         chart.draw(canvas);
 
         String fileName = "chart_" + System.currentTimeMillis();
@@ -294,8 +275,10 @@ public class analyze extends AppCompatActivity {
                 PdfDocument pdfDocument = new PdfDocument();
                 PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, height, 1).create();
                 PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+
                 Canvas pdfCanvas = page.getCanvas();
                 pdfCanvas.drawBitmap(chartBitmap, 0, 0, null);
+
                 pdfDocument.finishPage(page);
                 pdfDocument.writeTo(new FileOutputStream(file));
                 pdfDocument.close();
@@ -307,52 +290,6 @@ public class analyze extends AppCompatActivity {
         }
     }
 
-    private void updateChartTheme() {
-        SharedPreferences prefs = getSharedPreferences("AppTheme", MODE_PRIVATE);
-        int textColor = prefs.getInt("text_color", Color.BLACK);
-        int backgroundColor = prefs.getInt("background_color", Color.WHITE);
-
-        chart.setBackgroundColor(backgroundColor);
-        chart.getXAxis().setTextColor(textColor);
-        chart.getAxisLeft().setTextColor(textColor);
-        chart.getLegend().setTextColor(textColor);
-        chart.getDescription().setTextColor(textColor);
-
-        if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
-            LineDataSet dataSet = (LineDataSet) chart.getData().getDataSetByIndex(0);
-            dataSet.setColor(textColor);
-            dataSet.setCircleColor(textColor);
-            dataSet.setValueTextColor(textColor);
-        }
-
-        chart.invalidate();
-    }
-
-    private void updateSpinnerTheme() {
-        SharedPreferences prefs = getSharedPreferences("AppTheme", MODE_PRIVATE);
-        int backgroundColor = prefs.getInt("background_color", Color.WHITE);
-        int spinnerTextColor = ThemeManager.getContrastColor(backgroundColor);
-
-        ArrayAdapter<String> adapter = (ArrayAdapter<String>) analysisTypeSpinner.getAdapter();
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        analysisTypeSpinner.setAdapter(adapter);
-
-        analysisTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (view instanceof TextView) {
-                    ((TextView) view).setTextColor(spinnerTextColor);
-                }
-                updateChart(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // 不做任何事
-            }
-        });
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -360,4 +297,5 @@ public class analyze extends AppCompatActivity {
             db.close();
         }
     }
+
 }
