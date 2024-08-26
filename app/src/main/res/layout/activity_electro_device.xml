@@ -132,6 +132,13 @@
                 android:layout_margin="16dp"
                 android:gravity="center"
                 android:text="確認新增" />
+
+            <Button
+                android:id="@+id/homepageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:text="返回" />
         </LinearLayout>
 
         <LinearLayout

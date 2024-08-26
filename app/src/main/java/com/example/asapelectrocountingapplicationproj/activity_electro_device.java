@@ -60,6 +60,15 @@ public class activity_electro_device extends AppCompatActivity {
 
         // 設置長按刪除功能
         setupLongClickDelete();
+
+        // 添加返回按鈕
+        Button backButton = findViewById(R.id.homepageButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish(); // 這會關閉當前活動並返回到MainActivity
+            }
+        });
     }
 
     private void initAppliancePowerMap() {
@@ -243,30 +252,36 @@ public class activity_electro_device extends AppCompatActivity {
     private void updateTotalAndEstimate() {
         double totalKWh = 0.0;
         double totalBill = 0.0;
+
+        // 計算所有設備的總耗電量
         for (String item : deviceList) {
             String[] parts = item.split(":");
             if (parts.length >= 3) {
-                // 提取度數和電費
                 String[] kWhPart = parts[1].split(" 度");
                 String[] billPart = parts[2].split(" 元");
 
-                // 確保在分割後有值
                 if (kWhPart.length > 0 && billPart.length > 0) {
                     try {
                         totalKWh += Double.parseDouble(kWhPart[0].trim());
-                        totalBill += Double.parseDouble(billPart[0].trim());
                     } catch (NumberFormatException e) {
-                        // 處理解析錯誤
                         e.printStackTrace();
                     }
                 }
             }
         }
 
+        // 取得用戶選擇的夏季/非夏季及電力用途
+        boolean isSummer = summerSpinner.getSelectedItem().toString().equals("夏季");
+        String businessType = businessSpinner.getSelectedItem().toString();
+
+        // 根據選擇的夏季/非夏季和電力用途計算總電費
+        totalBill = calculateBill((int) Math.round(totalKWh), isSummer, businessType);
+
         // 更新顯示
         totalTextView.setText(String.format("%.2f", totalKWh));
         estimateExpenseTextView.setText(String.format("%.2f", totalBill));
     }
+
 
     private double calculateBill(int kWh, boolean isSummer, String businessType) {
         if (businessType.equals("住宅用") || businessType.equals("住宅以外非營業用")) {
