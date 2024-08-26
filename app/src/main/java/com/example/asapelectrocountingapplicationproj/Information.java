@@ -1,6 +1,9 @@
 package com.example.asapelectrocountingapplicationproj;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -31,6 +34,9 @@ public class Information extends AppCompatActivity {
         updateButton.setOnClickListener(v -> fetchNews());
 
         fetchNews();
+
+
+        ThemeManager.applyTheme(this);
     }
 
     private void fetchNews() {
@@ -73,4 +79,21 @@ public class Information extends AppCompatActivity {
         });
         newsContainer.addView(newsItem);
     }
+
+    private final BroadcastReceiver themeChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("com.example.asapelectrocountingapplicationproj.THEME_CHANGED".equals(intent.getAction())) {
+                ThemeManager.applyTheme(Information.this);
+            }
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(themeChangeReceiver, new IntentFilter("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
+        ThemeManager.applyTheme(this);
+    }
+
 }

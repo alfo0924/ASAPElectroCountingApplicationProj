@@ -12,7 +12,7 @@
         android:layout_height="424dp"
         android:layout_marginBottom="20dp"
         android:background="#F8F8F8"
-        android:backgroundTint="#00FFFFFF">
+        android:backgroundTint="#EEF6F6F6">
 
         <LinearLayout
             android:id="@+id/newsContainer"
