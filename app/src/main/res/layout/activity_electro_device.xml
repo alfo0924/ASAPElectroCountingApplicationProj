@@ -17,7 +17,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="5sp"
             android:orientation="horizontal">
 
             <TextView
@@ -44,7 +44,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="5sp"
             android:orientation="horizontal">
 
             <Spinner
@@ -68,7 +68,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="5sp"
             android:orientation="horizontal">
 
             <TextView
@@ -93,7 +93,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="5sp"
             android:orientation="horizontal">
 
             <Spinner
@@ -122,7 +122,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="5sp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -134,18 +134,12 @@
                 android:gravity="center"
                 android:text="確認新增" />
 
-            <Button
-                android:id="@+id/homepageButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:text="返回" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="5sp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -182,7 +176,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="5sp"
             android:orientation="horizontal">
 
             <TextView
@@ -216,7 +210,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="237dp"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="5sp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -233,7 +227,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="5sp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -245,6 +239,12 @@
                 android:gravity="center"
                 android:text="顯示圖表" />
 
+            <Button
+                android:id="@+id/homepageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:text="返回" />
 
 
         </LinearLayout>
@@ -252,7 +252,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="5sp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -261,8 +261,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_margin="16dp"
-                android:visibility="gone"
-                />
+                android:visibility="gone" />
 
         </LinearLayout>
 
