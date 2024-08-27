@@ -84,7 +84,9 @@
             android:id="@+id/lvBills"
             android:layout_width="355dp"
             android:layout_height="204dp"
-            android:layout_marginBottom="5dp" />
+            android:layout_marginBottom="5dp"
+            android:background="#D3CBCBCB"
+            android:backgroundTint="#85FFFFFF" />
 
         <LinearLayout
             android:layout_width="wrap_content"
