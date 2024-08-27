@@ -80,7 +80,6 @@
                 android:text="電費分析" />
 
             <Button
-                android:id="@+id/button5"
 
                 android:id="@+id/settingsButton"
 

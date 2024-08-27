@@ -5,10 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-
 import android.os.CountDownTimer;
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -29,18 +27,13 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-
         // 設置邊界，保持內容不會被系統狀態欄擠壓
-
         ThemeManager.applyTheme(this);
-
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
 
         // 初始化倒數計時相關的 View
         countdownText = findViewById(R.id.countdownText);
@@ -49,16 +42,16 @@ public class MainActivity extends AppCompatActivity {
         // 開始倒數計時
         startCountdown();
 
-        // 找到電費估算器按鈕
-        Button estimatorButton = findViewById(R.id.estimatorButton);
-        estimatorButton.setOnClickListener(new View.OnClickListener() {
+        setupButtons();
+
+        Button selectElectroDeviceButton = findViewById(R.id.deviceButton);
+        selectElectroDeviceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ElectroEstimatorPlanChoose.class);
+                Intent intent = new Intent(MainActivity.this, activity_electro_device.class);
                 startActivity(intent);
             }
-
-        setupButtons();
+        });
     }
 
     private void setupButtons() {
@@ -74,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, destinationClass);
             startActivity(intent);
-
         });
     }
 
@@ -94,17 +86,6 @@ public class MainActivity extends AppCompatActivity {
         ThemeManager.applyTheme(this);
     }
 
-
-        Button selectElectroDeviceButton = findViewById(R.id.deviceButton);
-        selectElectroDeviceButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, activity_electro_device.class);
-                startActivity(intent);
-            }
-        });
-    }
-
     private void startCountdown() {
         // 設定倒數計時 5 秒，每秒更新一次 開啟時看到會減 1 秒 故加一秒
         new CountDownTimer(6000, 1000) {
@@ -118,11 +99,11 @@ public class MainActivity extends AppCompatActivity {
                 adContainer.setVisibility(View.GONE);
             }
         }.start();
+    }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(themeChangeReceiver);
-
     }
 }
