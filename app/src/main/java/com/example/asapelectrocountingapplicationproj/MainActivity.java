@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //找到deviceButton
         Button selectElectroDeviceButton = findViewById(R.id.deviceButton);
         selectElectroDeviceButton.setOnClickListener(new View.OnClickListener() {
             @Override
