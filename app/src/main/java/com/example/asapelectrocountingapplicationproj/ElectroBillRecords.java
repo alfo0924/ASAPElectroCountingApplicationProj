@@ -38,6 +38,9 @@ public class ElectroBillRecords extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_electro_bill_records);
 
+        ThemeManager.applyTheme(this);
+
+
         etDate = findViewById(R.id.etDate);
         etAmount = findViewById(R.id.etAmount);
         etUsage = findViewById(R.id.etUsage);
@@ -286,5 +289,10 @@ public class ElectroBillRecords extends AppCompatActivity {
         if (db != null) {
             db.close();
         }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ThemeManager.applyTheme(this);
     }
 }

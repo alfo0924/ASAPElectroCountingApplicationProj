@@ -32,7 +32,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -41,4 +40,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation ("com.github.yukuku:ambilwarna:2.0.1")
+    implementation ("com.itextpdf:itextg:5.5.10")
+    implementation ("org.jsoup:jsoup:1.14.3")
+
 }
