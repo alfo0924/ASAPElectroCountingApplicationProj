@@ -13,3 +13,11 @@
 .externalNativeBuild
 .cxx
 local.properties
+/caches
+/daemon
+android/FakeDependency.jar
+/android
+/native
+/wrapper
+jdks/CACHEDIR.TAG
+gradle/wrapper/gradle-wrapper.jar

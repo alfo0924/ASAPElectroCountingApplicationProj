@@ -38,12 +38,14 @@
                 android:id="@+id/twoStageRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="#00FFFFFF"
                 android:text="二段式" />
 
             <RadioButton
                 android:id="@+id/threeStageRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="#00FFFFFF"
                 android:text="三段式" />
         </RadioGroup>
 
@@ -57,12 +59,14 @@
                 android:id="@+id/summerSeason"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="#00FFFFFF"
                 android:text="夏月" />
 
             <RadioButton
                 android:id="@+id/nonSummerSeason"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="#00FFFFFF"
                 android:text="非夏月" />
         </RadioGroup>
 
@@ -76,12 +80,14 @@
                 android:id="@+id/weekday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="平日" />
+                android:text="平日"
+                android:backgroundTint="#00FFFFFF" />
 
             <RadioButton
                 android:id="@+id/weekend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="#00FFFFFF"
                 android:text="週末/離峰日" />
         </RadioGroup>
 
@@ -113,7 +119,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="請輸入日期"
+            android:hint="日期(YYYY-MM-DD)"
             android:inputType="date"
             android:textAlignment="center" />
 
