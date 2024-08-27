@@ -58,7 +58,7 @@ public class ElectroTimeEstimator extends AppCompatActivity {
 
     private void setupDatabase() {
         db = openOrCreateDatabase("ElectricityBills", MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL, remark TEXT, type TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL, remark TEXT)");
     }
 
     private void setupListeners() {
@@ -183,7 +183,6 @@ public class ElectroTimeEstimator extends AppCompatActivity {
 
         ContentValues values = new ContentValues();
         values.put("date", date);
-        values.put("type", "est");
         values.put("amount", totalFee);
         values.put("usage", totalUsage);
         values.put("remark", remark);
@@ -268,7 +267,7 @@ public class ElectroTimeEstimator extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(themeChangeReceiver, new IntentFilter("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"), Context.RECEIVER_NOT_EXPORTED);
+        registerReceiver(themeChangeReceiver, new IntentFilter("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
         ThemeManager.applyTheme(this);
     }
 

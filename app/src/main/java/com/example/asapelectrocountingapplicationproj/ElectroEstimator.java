@@ -26,7 +26,7 @@ public class ElectroEstimator extends AppCompatActivity {
     private EditText usageEditText, dateEditText;
     private Spinner typeSpinner, seasonSpinner;
     private Button calculateButton, saveButton, backButton;
-    private TextView resultTextView, editTextTextMultiLine;
+    private TextView resultTextView;
     private static final String RESIDENTIAL = "住宅用";
     private static final String NON_RESIDENTIAL = "住宅以外非營業用";
     private static final String COMMERCIAL = "營業用";
@@ -58,7 +58,6 @@ public class ElectroEstimator extends AppCompatActivity {
         saveButton = findViewById(R.id.saveButton);
         resultTextView = findViewById(R.id.resultTextView);
         backButton = findViewById(R.id.backButton);
-        editTextTextMultiLine = findViewById(R.id.editTextTextMultiLine);
     }
 
     private void setupSpinners() {
@@ -84,7 +83,7 @@ public class ElectroEstimator extends AppCompatActivity {
 
     private void setupDatabase() {
         db = openOrCreateDatabase("ElectricityBills", MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL, remark TEXT, type TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL, remark TEXT)");
     }
 
     private void calculateElectricity() {
@@ -153,7 +152,6 @@ public class ElectroEstimator extends AppCompatActivity {
         String result = resultTextView.getText().toString();
         String dateStr = dateEditText.getText().toString().trim();
         String usageStr = usageEditText.getText().toString().trim();
-        String remarkStr = editTextTextMultiLine.getText().toString().trim();
 
         if (dateStr.isEmpty()) {
             Toast.makeText(this, "請輸入日期", Toast.LENGTH_SHORT).show();
@@ -179,11 +177,10 @@ public class ElectroEstimator extends AppCompatActivity {
         double amount = Double.parseDouble(result.split(": ")[1].replace(" 元", ""));
         String type = typeSpinner.getSelectedItem().toString();
         String season = seasonSpinner.getSelectedItem().toString();
-        String remark = type + ", " + season + " - " + usageStr + "度" + " / " + remarkStr;
+        String remark = type + ", " + season + " - " + usageStr + "度";
 
         ContentValues values = new ContentValues();
         values.put("date", dateStr);
-        values.put("type", "est");
         values.put("amount", amount);
         values.put("usage", usage);
         values.put("remark", remark);
@@ -256,7 +253,7 @@ public class ElectroEstimator extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(themeChangeReceiver, new IntentFilter("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"), Context.RECEIVER_NOT_EXPORTED);
+        registerReceiver(themeChangeReceiver, new IntentFilter("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
         ThemeManager.applyTheme(this);
     }
 
