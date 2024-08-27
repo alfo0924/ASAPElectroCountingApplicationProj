@@ -1,12 +1,10 @@
 package com.example.asapelectrocountingapplicationproj;
 
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -58,7 +56,7 @@ public class ElectroBillRecords extends AppCompatActivity {
         selectedItems = new HashSet<>();
 
         db = openOrCreateDatabase("ElectricityBills", MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL, remark TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS bills(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, amount REAL, usage REAL, remark TEXT, type TEXT)");
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -94,10 +92,14 @@ public class ElectroBillRecords extends AppCompatActivity {
                 double amount = cursor.getDouble(2);
                 double usage = cursor.getDouble(3);
                 String remark = cursor.getString(4);
-                String billInfo = date + " - $" + String.format("%.2f", amount) + " - " + String.format("%.2f", usage) + " 度";
-                if (remark != null && !remark.isEmpty()) {
-                    billInfo += " - " + remark;
+                String type = cursor.getString(5);
+                String typeStr = "[估算]";
+                if(type.equals("real")){
+                    typeStr = "[真實]";
                 }
+                //String billInfo = date + " - $" + String.format("%.2f", amount) + " - " + String.format("%.2f", usage) + " 度";
+                String billInfo = date + " - $" + amount + " - " + usage + " 度" + typeStr;
+
                 billsList.add(billInfo);
             } while (cursor.moveToNext());
         }
@@ -127,6 +129,7 @@ public class ElectroBillRecords extends AppCompatActivity {
 
         ContentValues values = new ContentValues();
         values.put("date", date);
+        values.put("type", "real");
         values.put("amount", amount);
         values.put("usage", usage);
         values.put("remark", remark);
