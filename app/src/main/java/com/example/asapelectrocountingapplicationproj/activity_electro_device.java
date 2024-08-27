@@ -42,6 +42,8 @@ public class activity_electro_device extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_electro_device);
 
+        ThemeManager.applyTheme(this);
+
         // 初始化電器名稱與消耗電力綁定資料
         initAppliancePowerMap();
 
@@ -432,5 +434,10 @@ public class activity_electro_device extends AppCompatActivity {
         PieData pieData = new PieData(dataSet);
         pieChart.setData(pieData);
         pieChart.invalidate(); // 刷新圖表
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ThemeManager.applyTheme(this);
     }
 }

@@ -73,13 +73,6 @@
                 android:text="電器用電" />
 
             <Button
-                android:id="@+id/button4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="電費分析" />
-
-            <Button
 
                 android:id="@+id/settingsButton"
 
@@ -98,6 +91,7 @@
 
     </LinearLayout>
 
+
     <!-- FrameLayout for the ad with countdown timer -->
     <FrameLayout
         android:id="@+id/adContainer"
@@ -111,10 +105,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="130dp"
+            android:autoSizeMaxTextSize="100sp"
+            android:autoSizeMinTextSize="50sp"
+            android:autoSizeStepGranularity="2sp"
+            android:autoSizeTextType="uniform"
+            android:gravity="center"
             android:text="5"
-            android:textColor="#FFFFFF"
-            android:textSize="50sp" />
+            android:textColor="#EDEBEB"
+            android:textSize="150sp" />
 
         <ImageView
             android:id="@+id/adImage"
@@ -125,5 +124,4 @@
 
 
     </FrameLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
