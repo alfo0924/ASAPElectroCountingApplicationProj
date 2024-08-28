@@ -1,3 +1,4 @@
+// ThemeManager.java
 package com.example.asapelectrocountingapplicationproj;
 
 import android.app.Activity;
@@ -6,10 +7,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 public class ThemeManager {
@@ -21,7 +20,6 @@ public class ThemeManager {
 
     public static void applyTheme(Activity activity) {
         SharedPreferences prefs = activity.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-
         int backgroundColor = prefs.getInt(KEY_BACKGROUND_COLOR, Color.WHITE);
         int textColor = prefs.getInt(KEY_TEXT_COLOR, Color.BLACK);
         float textSize = prefs.getFloat(KEY_TEXT_SIZE, 18);
@@ -34,43 +32,22 @@ public class ThemeManager {
     private static void applyThemeToViewHierarchy(Context context, View view, int textColor, float textSize, int buttonColor, int backgroundColor) {
         if (view instanceof TextView) {
             TextView textView = (TextView) view;
-            if (textView.getId() == R.id.titleTextView) {
-                textView.setTextColor(getContrastColor(backgroundColor));
-            } else if (!(textView instanceof Button)) {
+            if (!(textView instanceof Button)) {
                 textView.setTextColor(textColor);
                 textView.setTextSize(textSize);
             }
         }
+
         if (view instanceof EditText) {
             EditText editText = (EditText) view;
             editText.setTextColor(textColor);
             editText.setHintTextColor(getContrastColor(backgroundColor));
         }
+
         if (view instanceof Button) {
-            ((Button) view).setBackgroundColor(buttonColor);
-            ((Button) view).setTextColor(textColor);
-        }
-        if (view instanceof android.widget.Spinner) {
-            android.widget.Spinner spinner = (android.widget.Spinner) view;
-            spinner.setBackgroundColor(buttonColor);
-
-            // Set the text color for the selected item
-            if (spinner.getSelectedView() instanceof TextView) {
-                ((TextView) spinner.getSelectedView()).setTextColor(getContrastColor(buttonColor));
-            }
-
-            // Set the text color for the dropdown items
-            spinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-                    if (view instanceof TextView) {
-                        ((TextView) view).setTextColor(getContrastColor(buttonColor));
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(android.widget.AdapterView<?> parent) {}
-            });
+            Button button = (Button) view;
+            button.setBackgroundColor(buttonColor);
+            button.setTextColor(textColor);
         }
 
         if (view instanceof ViewGroup) {
@@ -104,7 +81,4 @@ public class ThemeManager {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return prefs.getInt(KEY_TEXT_COLOR, Color.BLACK);
     }
-
-
-
 }
