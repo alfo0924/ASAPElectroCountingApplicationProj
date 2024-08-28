@@ -1,7 +1,11 @@
 package com.example.asapelectrocountingapplicationproj;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -36,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class analyze extends AppCompatActivity {
+    private BroadcastReceiver themeChangeReceiver;
 
     private Spinner analysisTypeSpinner;
     private LineChart chart;
@@ -60,10 +65,24 @@ public class analyze extends AppCompatActivity {
 
         backButton.setOnClickListener(v -> finish());
         downloadButton.setOnClickListener(v -> handleDownload());
+
+
+        setupThemeChangeReceiver();
+        ThemeManager.applyTheme(this);
         // 在界面加載時自動更新圖表
         updateChart(0); // 默認顯示用電分析
     }
 
+    private void setupThemeChangeReceiver() {
+        themeChangeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                ThemeManager.applyTheme(analyze.this);
+                updateChartTheme();
+            }
+        };
+        registerReceiver(themeChangeReceiver, new IntentFilter("com.example.asapelectrocountingapplicationproj.THEME_CHANGED"));
+    }
     private void setupSpinner() {
         String[] analysisTypes = {"用電分析", "電費分析", "總分析"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, analysisTypes);
@@ -293,9 +312,13 @@ public class analyze extends AppCompatActivity {
         chart.getDescription().setEnabled(true);
         chart.getDescription().setText(typeLabel);
         chart.getDescription().setTextSize(12f);
-
         chart.animateX(1000);
         chart.invalidate();
+
+
+        // 應用當前主題到圖表
+        updateChartTheme();
+
     }
 
     private void handleDownload() {
@@ -369,11 +392,36 @@ public class analyze extends AppCompatActivity {
         }
     }
 
+
+    private void updateChartTheme() {
+        int textColor = ThemeManager.getTextColor(this);
+        int backgroundColor = ThemeManager.getBackgroundColor(this);
+
+        chart.setBackgroundColor(backgroundColor);
+        chart.getXAxis().setTextColor(textColor);
+        chart.getAxisLeft().setTextColor(textColor);
+        chart.getLegend().setTextColor(textColor);
+        chart.getDescription().setTextColor(textColor);
+
+        chart.invalidate();
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ThemeManager.applyTheme(this);
+        updateChartTheme();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (db != null) {
             db.close();
+        }
+        if (themeChangeReceiver != null) {
+            unregisterReceiver(themeChangeReceiver);
         }
     }
 

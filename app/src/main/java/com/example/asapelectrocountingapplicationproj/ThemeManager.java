@@ -94,4 +94,17 @@ public class ThemeManager {
         double luminance = (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
         return luminance > 0.5 ? Color.BLACK : Color.WHITE;
     }
+
+    public static int getBackgroundColor(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getInt(KEY_BACKGROUND_COLOR, Color.WHITE);
+    }
+
+    public static int getTextColor(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getInt(KEY_TEXT_COLOR, Color.BLACK);
+    }
+
+
+
 }
